@@ -8,7 +8,7 @@ Fork the `ngpf-dev` repository to your github account.
 ### Step 2
 Clone your fork to your local machine.
 	
-	git clone https://github.com/username/ngpf-dev
+	git clone https://github.com/<username>/ngpf-dev
 
 The default branch of the `ngpf-dev` repository should be `master-dev`. In this step you also want to define the `private` remote to the original repository (also called `upstream`). 
 
@@ -37,7 +37,7 @@ Make your changes, commit them and push the branch into your fork.
 	git push origin fix_bug
 
 ### Step 3
-Go to your online fork (https://github.com/username/ngpf-dev) and press the *create pull request* button.
+Go to your online fork (`https://github.com/<username>/ngpf-dev`) and press the *create pull request* button.
 
 
 ## Sync with public repository
