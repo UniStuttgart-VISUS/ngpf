@@ -44,7 +44,7 @@ Make your changes, commit them and push the branch into your fork.
 Go to your online fork (`https://github.com/<username>/ngpf-dev`) and press the *create pull request* button.
 
 ## Sync with public repository
-Before synchronizing the public repository, the changes you want to push should be accepted in the `ngpf-dev` repository. Do not push ongoing pull requests or completely unrelated changes! As an alternative to the direct pushing method described below, you can also create a pull request.
+Before synchronizing the public repository, the changes you want to push should be accepted in the `ngpf-dev` repository. Do not push ongoing pull requests or completely unrelated changes! Then, you can sync the public with the private repository by a pull request.
 
 Make sure you are in the `master` branch and your fork is at the same state as `public_upstream`. Create a new branch.
 
