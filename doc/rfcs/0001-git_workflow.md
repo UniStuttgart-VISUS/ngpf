@@ -33,12 +33,12 @@ The access to the default branches is restricted, this means it is not allowed t
 Before creating a new branch, `master-dev` should be synchronized with the `private_upstream`) remote.
 
 	git pull private master-dev
-	git checkout -b fix_bug
+	git checkout -b feature
 
 ### Step 2
 Make your changes, commit them and push the branch into your fork.
 
-	git push origin fix_bug
+	git push origin feature
 
 ### Step 3
 Go to your online fork (`https://github.com/<username>/ngpf-dev`) and press the *create pull request* button.
@@ -54,4 +54,14 @@ Merge the private `master-dev` branch in the `public_merge` branch, but don't co
 
 	git merge master-dev --no-commit --no-ff --allow-unrelated-histories
 
-Now you are able to exclude files and directories from the commit. Make sure the private content of `master-dev` is not included in your commit. Create a pull request to the private repository as explained [above](#pull).
+Now you are able to exclude files and directories from the commit. Make sure the private content of `master-dev` is not included in your commit. Create a pull request for `public_merge` to the private repository as explained [above](#pull).
+
+## Workflow diagram
+This diagram shows the intended configuration of the local repository. Additionally, the workflow of a suggested branch `feature` from the local changes to publication is shown.
+
+<object data="../figures/0001-git_workflow.pdf" type="application/pdf" width="100%">
+    <embed src="../figures/0001-git_workflow.pdf">
+        This browser does not support PDFs. Please download the PDF to view it: <a href="../figures/0001-git_workflow.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
+
