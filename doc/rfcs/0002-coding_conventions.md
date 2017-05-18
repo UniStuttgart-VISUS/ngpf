@@ -23,11 +23,11 @@ Do not indent class declaration after namespace specification.
 
 	class charlie {
 	public:
-		charlie(void);
+	    charlie(void);
 
-		~charlie(void);
+	    ~charlie(void);
 	private:
-		float member;
+	    float member;
 	}; /* end class charlie */
 
 	} /* end namespace beta */
