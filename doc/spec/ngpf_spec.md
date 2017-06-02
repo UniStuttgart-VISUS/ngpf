@@ -19,12 +19,12 @@ The global header contains information that is relevant for all stored frames.
 
 ## Global header
 [Go to Top](#file-format-specification-ngpf)  
-The global header format is ASCII and contains a number of properties:
+The global header format is ASCII and it contains a number of properties:
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF global header.</caption>
 <colgroup>
-<col width="25%" />
+<col width="24%" />
 <col width="23%" />
 <col width="50%" />
 </colgroup>
@@ -89,13 +89,81 @@ The global header format is ASCII and contains a number of properties:
 </tbody>
 </table>
 
+The values are space separated from the corresponding keyword e.g. 
+    
+	Idendifier hurtZ_Crowbar
+	Version 1.0.0
+    Frames 10
+	...
+
 ## Frame header
 [Go to Top](#file-format-specification-ngpf)  
+The frame header format is ASCII and it contains a number of properties:
+
+<table style="width:97%;">
+<caption> Parameters accepted by the NGPF frame header.</caption>
+<colgroup>
+<col width="24%" />
+<col width="23%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Format</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>Particles</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">number of particles</td>
+</tr>
+<tr class="even">
+<td align="left"><code>FrameID</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">ID of the frame, usually the first frame has id 0</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>Timestamp</code></td>
+<td align="left"><code>float</code></td>
+<td align="left">corresponding time to the frame</td>
+</tr>
+<tr class="even">
+<td align="left"><code>BoundingBox</code></td>
+<td align="left"><code>float float float</code></td>
+<td align="left">bounding box of frame</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>ClippingBox</code></td>
+<td align="left"><code>float float float</code></td>
+<td align="left">clipping box of the frame</td>
+</tr>
+<tr class="even">
+<td align="left"><code>SimulationBox</code></td>
+<td align="left"><code>float float float</code></td>
+<td align="left">simulation box of the frame</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>FrameFile</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">Relative path to the frame data file (see <a href="#frame-data">Frame data</a>)</td>
+</tr>
+<tr class="even">
+<td align="left"><code>FrameOffset</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">offset inside the data file to the corresponding frame</td>
+</tr>
+</tbody>
+</table>
 
 
 ## Frame data
 [Go to Top](#file-format-specification-ngpf)  
 [comment]: # (Description of the frame data structure)
+
+
 
 ## Type file
 [Go to Top](#file-format-specification-ngpf)  
