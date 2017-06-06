@@ -4,16 +4,17 @@ VISUS University of Stuttgart
 Oliver Fernandes, Patrick Gralka, Tobias Rau
 
 ## Sections
-[Preface](#preface) 
+[Preface](#preface)  
+[General Conventions](#general-conventions)  
 [File format](#file-format)  
-[Global header](#global-header)  
-[Frame header](#frame-header)  
-[Frame data](#frame-data)  
-[Type file](#type-file)  
+[Global Header](#global-header)  
+[Frame Header](#frame-header)  
+[Frame Data](#frame-data)  
+[Type File](#type-file)  
 [Example](#example)
 
 ## <a name="preface"></a>Preface 
-The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters. The user can use the header files for quick reference of the relevant parameters. The actual data is stored in a binary format that is chosen by the user. The ngpf library offers a variety of binary codecs (link to ngpf library). An optional type header can be used to assign particles to chemical elements or also molecules. Additionally, the type header can containt meta information about the element/molecule, e.g. charge, quaternions.
+This is a particle format that focuses on easy *readability for meta data* and *high compression* for everything else. The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters. The user can use the header files for quick reference of the relevant parameters. The actual data is stored in a binary format that is chosen by the user. The NGPF API offers a variety of *binary codecs* (link to the NGPF API). The components of the NGPF file format and their interactions are shown in the schmatic below. A *Global Header* stores the information, that applies for all frames, such as *Version number* or the *number of frames*. The *Frame Header* contains the meta data of each individual frame (e.g. *number of particles*, *time stamp*). An optional *Type File* can be used to assign particles to chemical elements or also molecules. Additionally, the Type File can containt meta information about the element/molecule, e.g. charge, quaternions.
 
 <center>
 ![schematic](schematic.png "schematic.png")  
@@ -21,11 +22,18 @@ The NGPF file format offers human-readable [JSON] headers and a separation of gl
 Figure: Schematic of the file format header management.
 </center>  
 
-## <a name="global-header"></a>Global header
+## <a name="general-conventions"></a>General Conventions
+[Go to Top](#top) 
+In the following sections we use some terms that need a clear definition. The term `float` corresponds to a IEEE standard floating point value with a size of 32 bit. A `byte` is a unsigned integer with the size of 8 bit. The NPFG headers will handle a `string` as an unicode string. A string that represents a relative file path always uses forward slashes `/` to separate directories. The `Version` of the NGPF file format consists of three integer values separated with a dot (`int.int.int`). The first integer corresponds to the major format version an is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller chages and bug fixes. Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2.0` only for `float`).
+
+  
+  
+
+## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
 
 <table style="width:97%;">
-<caption> Parameters accepted by the NGPF global header.</caption>
+<caption> Parameters accepted by the NGPF Global Header.</caption>
 <colgroup>
 <col width="24%" />
 <col width="23%" />
@@ -72,12 +80,12 @@ Figure: Schematic of the file format header management.
 <tr class="odd">
 <td align="left"><code>FrameHeader</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame header (see <a href="#frame-header">Frame header</a>) </td>
+<td align="left">Relative path to the frame header (see <a href="#frame-header">Frame Header</a>) </td>
 </tr>
 <tr class="even">
 <td align="left"><code>TypeHeader</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame header (see <a href="#type-header">Type header</a>)</td>
+<td align="left">Relative path to the frame header (see <a href="#type-header">Type File</a>)</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>FrameLayoutColumnCount</code></td>
@@ -104,11 +112,11 @@ Figure: Schematic of the file format header management.
 </table>
 
 
-## <a name="frame-header"></a>Frame header
+## <a name="frame-header"></a>Frame Header
 [Go to Top](#top)  
 
 <table style="width:97%;">
-<caption> Parameters accepted by the NGPF frame header.</caption>
+<caption> Parameters accepted by the NGPF Frame Header.</caption>
 <colgroup>
 <col width="24%" />
 <col width="23%" />
@@ -155,7 +163,7 @@ Figure: Schematic of the file format header management.
 <tr class="odd">
 <td align="left"><code>FrameFile</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame data file (see <a href="#frame-data">Frame data</a>)</td>
+<td align="left">Relative path to the frame data file (see <a href="#frame-data">Frame Data</a>)</td>
 </tr>
 <tr class="even">
 <td align="left"><code>FrameOffset</code></td>
@@ -166,18 +174,18 @@ Figure: Schematic of the file format header management.
 </table>
 
 
-## <a name="frame-data"></a>Frame data
+## <a name="frame-data"></a>Frame Data
 [Go to Top](#top)  
 
-The frame data is stored in a single or multiple frame files. The binary compression algorithm is set by the user defined and can vary between the individual columns.
+The *Frame Data* is stored in a single or multiple frame files. The binary compression algorithm is set by the user defined and can vary between the individual columns.
 
 
-## <a name="type-file"></a>Type file (optional)
+## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
 If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file. Additionaly, the file can contain meta information about the molecule, e.g. charge.
 
 <table style="width:97%;">
-<caption> Parameters accepted by the NGPF type header.</caption>
+<caption> Parameters accepted by the NGPF Type File.</caption>
 <colgroup>
 <col width="24%" />
 <col width="23%" />
@@ -213,9 +221,9 @@ If particles are identified by a type ID, the type ID to element or molecule con
 ## <a name="example"></a>Example
 [Go to Top](#top)  
 
-### Global header
+### Global Header
 	{
-	Identifier:	"hurtZ_Crowbar",
+	Identifier:	"NGPF",
 	Version: "1.0.0",
 	Frames : 10,
 	MaxBoundingBox: [1.0, 1.0, 1.0],
@@ -229,7 +237,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	FrameLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
 	}
 
-### Frame header
+### Frame Header
 	{
 	Particles: 1000,
 	FrameID: 0,
@@ -243,7 +251,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	...
 	}	
 
-### Type header
+### Type File
 	{
 	TypeID: 0,
 	Name: "H+",
