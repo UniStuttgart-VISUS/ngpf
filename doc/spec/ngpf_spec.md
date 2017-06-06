@@ -14,7 +14,7 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau
 [Example](#example)
 
 ## <a name="preface"></a>Preface 
-This is a particle format that focuses on easy *readability for meta data* and *high compression* for everything else. The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters. The user can use the header files for quick reference of the relevant parameters. The actual data is stored in a binary format that is chosen by the user. The NGPF API offers a variety of *binary codecs* (link to the NGPF API). The components of the NGPF file format and their interactions are shown in the schmatic below. A *Global Header* stores the information, that applies for all frames, such as *Version number* or the *number of frames*. The *Frame Header* contains the meta data of each individual frame (e.g. *number of particles*, *time stamp*). An optional *Type File* can be used to assign particles to chemical elements or also molecules. Additionally, the Type File can containt meta information about the element/molecule, e.g. charge, quaternions.
+This is a particle format that focuses on easy *readability for meta data* and *high compression* for everything else. The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters. The user can use the header files for quick reference of the relevant parameters. The actual data is stored in a binary format that is chosen by the user (e.g. [ZFP]). The NGPF API offers a variety of *binary codecs* (link to the NGPF API). The components of the NGPF file format and their interactions are shown in the schmatic below. A *Global Header* stores the information, that applies for all frames, such as *Version number* or the *number of frames*. The *Frame Header* contains the meta data of each individual frame (e.g. *number of particles*, *time stamp*). An optional *Type File* can be used to assign particles to chemical elements or also molecules. Additionally, the Type File can containt meta information about the element/molecule, e.g. charge, quaternions.
 
 <center>
 ![schematic](schematic.png "schematic.png")  
@@ -177,7 +177,29 @@ In the following sections we use some terms that need a clear definition. The te
 ## <a name="frame-data"></a>Frame Data
 [Go to Top](#top)  
 
-The *Frame Data* is stored in a single or multiple frame files. The binary compression algorithm is set by the user defined and can vary between the individual columns.
+The *Frame Data* is stored in a single or multiple frame files. The binary compression algorithm is set by the user defined and can vary between the individual columns. A frame file contains a consecutive binary dump of the data for each parameter. 
+
+<table style="width:96%;">
+<caption>Frame Data of a single frame assuming the six parameters <code>x, y, z, r, g, b</code></caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<tbody>
+<tr>
+<td align="center">ZFP of all x</td>
+<td align="center">ZFP of all y</td>
+<td align="center">ZFP of all z</td>
+<td align="center">LittleEndian of all r</td>
+<td align="center">LittleEndian of all g</td>
+<td align="center">LittleEndian of all b</td>
+</tr>
+</tbody>
+</table>
 
 
 ## <a name="type-file"></a>Type File (optional)
