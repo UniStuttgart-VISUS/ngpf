@@ -348,7 +348,7 @@ The *Frame Data* is stored in a single or multiple frame or parameter files. The
 
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
-If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file. Additionaly, the file can contain meta information about the molecule, e.g. charge.
+If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file. Additionally, the file can contain meta information about the molecule, e.g. charge.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Type File.</caption>
