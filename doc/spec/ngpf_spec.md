@@ -24,8 +24,7 @@ Figure: Schematic of the file format header management.
 
 ## <a name="general-conventions"></a>General Conventions
 [Go to Top](#top) 
-In the following sections we use some terms that need a clear definition. The term `float` corresponds to a IEEE standard floating point value with a size of 32 bit. A `byte` is a unsigned integer with the size of 8 bit. The NPFG headers will handle a `string` as an unicode string. A string that represents a relative file path always uses forward slashes `/` to separate directories. The `Version` of the NGPF file format consists of three integer values separated with a dot (`int.int.int`). The first integer corresponds to the major format version an is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller chages and bug fixes. Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2.0` only for `float`).
-
+In the following sections we use some terms that need a clear definition. The term `float` corresponds to a IEEE standard floating point value with a size of 32 bit. A `byte` is a unsigned integer with the size of 8 bit. The NPFG headers will handle a `string` as an unicode string. A string that represents a relative file path always uses forward slashes `/` to separate directories. The `Version` of the NGPF file format consists of three integer values separated with a dot (`int.int.int`). The first integer corresponds to the major format version an is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller chages and bug fixes. Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`). A parameter can be something obvious as `x` or `z`, but also an interleaved combination of all `xyz`.
   
   
 
@@ -50,7 +49,7 @@ In the following sections we use some terms that need a clear definition. The te
 <tr class="odd">
 <td align="left"><code>Identifier</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">identifies the file as NGPF global header</td>
+<td align="left">Identifies the file as NGPF global header</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Version</code></td>
@@ -60,22 +59,22 @@ In the following sections we use some terms that need a clear definition. The te
 <tr class="odd">
 <td align="left"><code>Frames</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">number of frames</td>
+<td align="left">Number of frames</td>
 </tr>
 <tr class="even">
 <td align="left"><code>MaxBoundingBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">maximum bounding box of the data set</td>
+<td align="left">Maximum bounding box of the data set</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>MaxClippingBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">maximum clipping box of the data set</td>
+<td align="left">Maximum clipping box of the data set</td>
 </tr>
 <tr class="even">
 <td align="left"><code>MaxSimulationBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">maximum simulation box of the data set</td>
+<td align="left">Maximum simulation box of the data set</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>FrameHeader</code></td>
@@ -90,23 +89,23 @@ In the following sections we use some terms that need a clear definition. The te
 <tr class="odd">
 <td align="left"><code>FrameLayoutColumnCount</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">number of columns per frame</td>
+<td align="left">Number of columns per frame</td>
 </tr>
 <tr class="even">
 <td align="left"><code>FrameLayoutColumnName</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
-<td align="left">name of each column</td>
+<td align="left">Name of each column</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>FrameLayoutColumnCodec</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
-<td align="left">name of the codec used to compress each column</td>
+<td align="left">Name of the codec used to compress each column</td>
 </tr>
 </tr>
 <tr class="even">
 <td align="left"><code>FrameLayoutColumnType</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
-<td align="left">name of the column type (e.g. <code>float, int</code>)</td>
+<td align="left">Name of the column type (e.g. <code>float, int</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -114,6 +113,12 @@ In the following sections we use some terms that need a clear definition. The te
 
 ## <a name="frame-header"></a>Frame Header
 [Go to Top](#top)  
+There are four posibilities:  
+1. all data is stored in one file  
+2. each frame is an individual file  
+3. all frames of a single parameter are contained in one file  
+4. each parameter is stored for each frame in an individual file  
+All are covered by the NGPF file format.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Frame Header.</caption>
@@ -133,7 +138,7 @@ In the following sections we use some terms that need a clear definition. The te
 <tr class="odd">
 <td align="left"><code>Particles</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">number of particles</td>
+<td align="left">Number of particles</td>
 </tr>
 <tr class="even">
 <td align="left"><code>FrameID</code></td>
@@ -143,32 +148,38 @@ In the following sections we use some terms that need a clear definition. The te
 <tr class="odd">
 <td align="left"><code>TimeStamp</code></td>
 <td align="left"><code>float</code></td>
-<td align="left">corresponding time to the frame</td>
+<td align="left">Corresponding time to the frame</td>
 </tr>
 <tr class="even">
 <td align="left"><code>BoundingBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">bounding box of frame</td>
+<td align="left">Bounding box of frame</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>ClippingBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">clipping box of the frame</td>
+<td align="left">Clipping box of the frame</td>
 </tr>
 <tr class="even">
 <td align="left"><code>SimulationBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">simulation box of the frame</td>
+<td align="left">Simulation box of the frame</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>FrameFile</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame data file (see <a href="#frame-data">Frame Data</a>)</td>
+<td align="left"><code>string or [string, ...]</code></td>
+<td align="left">Relative path to the frame data file (see <a href="#frame-data">Frame Data</a>). An array is required when each parameter is stored in an individual file.</td>
 </tr>
 <tr class="even">
 <td align="left"><code>FrameOffset</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">offset inside the data file to the corresponding frame</td>
+<td align="left"><code>int or [int, ...]</code></td>
+<td align="left">Offset inside the data file to the corresponding frame or an offset for each parameter.</td>
+</tr>
+</tr>
+<tr class="odd">
+<td align="left"><code>ParameterOffset</code></td>
+<td align="left"><code>[int, int, ...]</code></td>
+<td align="left">Offset inside the data file to the corresponding parameter. Required if frame is stored ins a single file.</td>
 </tr>
 </tbody>
 </table>
@@ -177,10 +188,51 @@ In the following sections we use some terms that need a clear definition. The te
 ## <a name="frame-data"></a>Frame Data
 [Go to Top](#top)  
 
-The *Frame Data* is stored in a single or multiple frame files. The binary compression algorithm is set by the user defined and can vary between the individual columns. A frame file contains a consecutive binary dump of the data for each parameter. 
+The *Frame Data* is stored in a single or multiple frame or parameter files. The binary compression algorithm is set by the user defined and can vary between the individual columns (parameters). The structure of a data file varies dependent of which structure scheme is selected by the user. For the different scenarios we assume the six parameters `x, y, z, r, g, b`
+
+`1.` all data is stored in one file  
+<table style="width:96%;">
+<caption><b>All</b><caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<tbody>
+<tr class="even">
+<td align="center">ZFP(x) frame 0</td>
+<td align="center">ZFP(y) frame 0</td>
+<td align="center">ZFP(z) frame 0</td>
+<td align="center">LittleEndian(r) frame 0</td>
+<td align="center">LittleEndian(g) frame 0</td>
+<td align="center">LittleEndian(b) frame 0</td>
+</tr>
+<tr class="odd">
+<td align="center">ZFP(x) frame 1</td>
+<td align="center">ZFP(y) frame 1</td>
+<td align="center">ZFP(z) frame 1</td>
+<td align="center">LittleEndian(r) frame 1</td>
+<td align="center">LittleEndian(g) frame 1</td>
+<td align="center">LittleEndian(b) frame 1</td>
+</tr>
+<tr class="even">
+<td align="center">...</td>
+<td align="center">...</td>
+<td align="center">...</td>
+<td align="center">...</td>
+<td align="center">...</td>
+<td align="center">...</td>
+</tr>
+</tbody>
+</table>
+
+`2.` each frame is an individual file 
 
 <table style="width:96%;">
-<caption>Frame Data of a single frame assuming the six parameters <code>x, y, z, r, g, b</code></caption>
+<caption><b>Fame 0</b><caption>
 <colgroup>
 <col width="16%" />
 <col width="16%" />
@@ -191,16 +243,108 @@ The *Frame Data* is stored in a single or multiple frame files. The binary compr
 </colgroup>
 <tbody>
 <tr>
-<td align="center">ZFP of all x</td>
-<td align="center">ZFP of all y</td>
-<td align="center">ZFP of all z</td>
-<td align="center">LittleEndian of all r</td>
-<td align="center">LittleEndian of all g</td>
-<td align="center">LittleEndian of all b</td>
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(y)</td>
+<td align="center">ZFP(z)</td>
+<td align="center">LittleEndian(r)</td>
+<td align="center">LittleEndian(g)</td>
+<td align="center">LittleEndian(b)</td>
+</tr>
+</tbody>
+
+</table>
+<table style="width:96%;">
+<caption><b>Fame 1</b><caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<tbody>
+<tr>
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(y)</td>
+<td align="center">ZFP(z)</td>
+<td align="center">LittleEndian(r)</td>
+<td align="center">LittleEndian(g)</td>
+<td align="center">LittleEndian(b)</td>
 </tr>
 </tbody>
 </table>
 
+`3.` all frames of a single parameter are contained in one file 
+<table style="width:96%;">
+<caption><b>Parameter x</b><caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<tbody>
+<tr class="even">
+<td align="center">ZFP(x) frame 0</td>
+<td align="center">ZFP(x) frame 1</td>
+<td align="center">ZFP(x) frame 2</td>
+<td align="center">ZFP(x) frame 3</td>
+<td align="center">ZFP(x) frame 4</td>
+<td align="center">...</td>
+</tr>
+</tbody>
+</table>
+<table style="width:96%;">
+<caption><b>Parameter y</b><caption>
+<colgroup>
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+<col width="16%" />
+</colgroup>
+<tbody>
+<tr class="even">
+<td align="center">ZFP(y) frame 0</td>
+<td align="center">ZFP(y) frame 1</td>
+<td align="center">ZFP(y) frame 2</td>
+<td align="center">ZFP(y) frame 3</td>
+<td align="center">ZFP(y) frame 4</td>
+<td align="center">...</td>
+</tr>
+</tbody>
+</table>
+
+`4.` each parameter is stored for each frame in an individual file
+
+<table style="width:16%;">
+<tbody>
+<tr class="header">
+<td align="center"><b>Parameter x, Frame 0</b></td>
+<td align="center"><b>Parameter x, Frame 1</b></td>
+<td align="center"><b>Parameter x, Frame 2</b></td>
+<td align="center"><b>...</b></td>
+<td align="center"><b>Parameter y, Frame 0</b></td>
+<td align="center"><b>Parameter y, Frame 0</b></td>
+<td align="center"><b>Parameter y, Frame 0</b></td>
+<td align="center"><b>...</b></td>
+</tr>
+<tr class="even">
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(x)</td>
+<td align="center">...</td>
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(x)</td>
+<td align="center">ZFP(x)</td>
+<td align="center">...</td>
+</tr>
+</tbody>
+</table>
 
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
@@ -224,7 +368,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 <tr class="odd">
 <td align="left"><code>TypeID</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">particle type ID</td>
+<td align="left">Particle type ID</td>
 </tr>
 <tr class="even">
 <td align="left"><code>Name</code></td>
@@ -234,7 +378,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 <tr class="odd">
 <td align="left"><code>self-defined-value</code></td>
 <td align="left"><code>any</code></td>
-<td align="left">a property of the particle type</td>
+<td align="left">A property of the particle type</td>
 </tr>
 </tbody>
 </table>
@@ -267,8 +411,10 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	BoundingBox: [1.0, 1.0, 1.0],
 	ClippingBox: [1.0, 1.0, 1.0],
 	SimulationBox: [1.0, 1.0, 1.0],
-	FrameFile: "frame0.dat";
-	FrameOffset: 0
+	FrameFile: ["frame0x.dat", "frame0y.dat", "frame0z.dat", "frame0r.dat", "frame0g.dat", "frame0b.dat"],
+	[optional - FrameFile: "frame0.dat"]
+	FrameOffset: 0,
+	[optional - ParameterOffset: [0, 10, 20 ,45, 4548, 199445]]
 	}{
 	...
 	}	
