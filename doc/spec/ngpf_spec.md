@@ -1,5 +1,5 @@
 # <a name="top"></a>File Format Specification NGPF
-Version: 1.0  
+Version:  
 VISUS University of Stuttgart  
 Oliver Fernandes, Patrick Gralka, Tobias Rau
 
@@ -26,7 +26,7 @@ An optional *Type File* can be used to assign chemical elements to particles or 
 Additionally, the Type File can contain meta information about the element/molecule.
 
 <center>
-![schematic](schematic.png)
+![](schematic.png "")
 Figure: Schematic of the file format header management.
 </center>  
 
@@ -67,7 +67,7 @@ The first integer corresponds to the major format version and is not necessarily
 </tr>
 <tr>
 <td align="left"><code>Version</code></td>
-<td align="left"><code>"int.int.int"</code></td>
+<td align="left"><code>"int.int.int.hash"</code></td>
 <td align="left">NGPF version number</td>
 </tr>
 <tr>
@@ -86,14 +86,29 @@ The first integer corresponds to the major format version and is not necessarily
 <td align="left">Maximum simulation box of the data set</td>
 </tr>
 <tr>
+<td align="left"><code>TypeHeader</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">Relative path to the frame header (see <a href="#type-header">Type File</a>)</td>
+</tr>
+<tr>
 <td align="left"><code>FrameHeader</code></td>
 <td align="left"><code>string</code></td>
 <td align="left">Relative path to the frame header (see <a href="#frame-header">Frame Header</a>) </td>
 </tr>
 <tr>
-<td align="left"><code>TypeHeader</code></td>
+<td align="left"><code>FrameDirectoryPrefix</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame header (see <a href="#type-header">Type File</a>)</td>
+<td align="left">Sets the naming scheme for the frame directories</td>
+</tr>
+<tr>
+<td align="left"><code>FrameDirectoryIncrement</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">Defines how many frames are stored in one directory</td>
+</tr>
+<tr>
+<td align="left"><code>FrameParameterSuffix</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">Defines the suffix that is appended on each parameter file inside the frame directories</td>
 </tr>
 <tr>
 <td align="left"><code>FrameLayoutColumnName</code></td>
@@ -129,14 +144,14 @@ The first integer corresponds to the major format version and is not necessarily
 </thead>
 <tbody>
 <tr>
-<td><code>Particles</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Number of particles</td>
-</tr>
-<tr>
 <td align="left"><code>FrameID</code></td>
 <td align="left"><code>int</code></td>
 <td align="left">ID of the frame, usually the first frame has id 0</td>
+</tr>
+<tr>
+<td><code>Particles</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">Number of particles</td>
 </tr>
 <tr>
 <td align="left"><code>TimeStamp</code></td>
@@ -148,11 +163,6 @@ The first integer corresponds to the major format version and is not necessarily
 <td align="left"><code>[float, float, float]</code></td>
 <td align="left">Simulation box of the frame</td>
 </tr>
-<tr>
-<td align="left"><code>ParameterFiles</code></td>
-<td align="left"><code>[string, string, ...]</code></td>
-<td align="left">Relative path to the parameter data files (see <a href="#data">Data</a>).</td>
-</tr>
 </tr>
 <tr>
 <td align="left"><code>ParameterOffsets</code></td>
@@ -160,9 +170,9 @@ The first integer corresponds to the major format version and is not necessarily
 <td align="left">Offset inside the data file to the corresponding frame for each parameter.</td>
 </tr>
 <tr>
-<td align="left"><code>ParameterOffsets</code></td>
-<td align="left"><code>[int, int, ...]</code></td>
-<td align="left">Offset inside the data file to the corresponding frame for each parameter.</td>
+<td align="left"><code>Codecs</code></td>
+<td align="left"><code>[struct, struct, ...]</code></td>
+<td align="left">Defines a struct for each parameter. A struct contains the codec name and  </td>
 </tr>
 </tbody>
 </table>
@@ -293,31 +303,66 @@ If particles are identified by a type ID, the type ID to element or molecule con
 <caption> Parameters accepted by the NGPF Type File.</caption>
 <colgroup>
 <col width="24%" />
-<col width="23%" />
-<col width="50%" />
+<col width="18%" />
+<col width="15%" />
+<col width="40%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">Parameter</th>
 <th align="left">Format</th>
+<th align="left">Flag</th>
 <th align="left">Description</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td align="left"><code>TypeID</code></td>
 <td align="left"><code>int</code></td>
+<td align="left">Required</td>
 <td align="left">Particle type ID</td>
 </tr>
-<tr class="even">
+<tr>
 <td align="left"><code>Name</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Name of the particle type (e.g. <code>H2O</code>)</td>
+<td align="left">Required</td>
+<td align="left">Name of the particle type (e.g. <code>H</code>)</td>
 </tr>
-<tr class="odd">
-<td align="left"><code>self-defined-value</code></td>
-<td align="left"><code>any</code></td>
-<td align="left">A property of the particle type</td>
+<tr>
+<td align="left"><code>NumberSites</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">Supported</td>
+<td align="left">Number of sites of the e.g. molecule</td>
+</tr>
+<tr>
+<td align="left"><code>Color</code></td>
+<td align="left"><code>[int, int, int, int]</code></td>
+<td align="left">Supported</td>
+<td align="left">Color of this type</td>
+</tr>
+<tr>
+<td align="left"><code>Radius</code></td>
+<td align="left"><code>float</code></td>
+<td align="left">Supported</td>
+<td align="left">Radius of this type</td>
+</tr>
+<tr>
+<td align="left"><code>Centers</code></td>
+<td align="left"><code>[[x0, y0, z0],[...],...]</code></td>
+<td align="left">Supported, Multisite</td>
+<td align="left">Centers of the sites relative to the center of mass</td>
+</tr>
+<tr>
+<td align="left"><code>Types</code></td>
+<td align="left"><code>[int, int, ...]</code></td>
+<td align="left">Supported, Multisite</td>
+<td align="left">Type IDs of the sites</td>
+</tr>
+<tr>
+<td align="left"><code>Quaternions</code></td>
+<td align="left"><code>[[qr,qi,qj,qk],[...],...]</code></td>
+<td align="left">Supported, Multisite</td>
+<td align="left">Quaternions of connected sites. Can also be empty if a site is e.g. a single atom.</td>
 </tr>
 </tbody>
 </table>
@@ -329,14 +374,15 @@ If particles are identified by a type ID, the type ID to element or molecule con
 ### Global Header
 	{
 	Identifier:	"NGPF",
-	Version: "1.0.0",
+	Version: "1.0.0.3fa5735-dirty",
 	Frames : 100,
-	TimeStampUnit: "seconds"
+	TimeStampUnit: "seconds",
 	MaxSimulationBox: [1.0, 1.0, 1.0],
 	TypeHeader: "typeheader.json",
 	FrameHeader: "frameheader.json",
-	FrameDirectoryPrefix: "frame%0.3i"  |--> fixes the frame directory affix to a three digit integer
-	FrameDirectoryIncrement: 10         |--> results in frame000, frame010, frame020, ...
+	FrameDirectoryPrefix: "frame%0.3i",  |--> fixes the frame directory affix to a three digit integer
+	FrameDirectoryIncrement: 10,         |--> results in frame000, frame010, frame020, ...
+	FrameParameterSuffix: "dat",
 	FrameLayoutColumnCount: 6,
 	FrameLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
 	FrameLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
@@ -348,8 +394,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	TimeStamp: 0.0,
 	Particles: 1000,
 	SimulationBox: [1.0, 1.0, 1.0],
-	ParameterFiles: ["x.dat", "y.dat", "z.dat", "r.dat", "g.dat", "b.dat"],
-	ParameterOffsets: [0, 0, 0, 0, 0, 0]]
+	ParameterOffsets: [0, 0, 0, 0, 0, 0]],
 	Codecs:	[
 		{name: "ZFP",
 	 	 epsilon: 0.1},
@@ -369,8 +414,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	TimeStamp: 0.1,
 	Particles: 1000,
 	SimulationBox: [1.0, 1.0, 1.0],
-	FrameFile: ["x.dat", "y.dat", "z.dat", "r.dat", "g.dat", "b.dat"],
-	ParameterOffset: [32000, 32000, 32000, 8000, 8000, 8000]]
+	ParameterOffset: [32000, 32000, 32000, 8000, 8000, 8000]],
 	Codecs:	[
 		{name: "ZFP",
 	 	 epsilon: 0.1},
@@ -389,15 +433,38 @@ If particles are identified by a type ID, the type ID to element or molecule con
 
 ### Type File
 	{
-	TypeID: 0,
-	Name: "H+",
-	Charge: 1.0
+	TypeID: 0, # Required
+	Name: "H", # Required
+	NumberSites: 1
+	Color: [r,g,b,a],
+	Radius: 1.2,
 	}{
 	TypeID: 1,
-	Name: "OH-",
-	Charge: -1.0
+	Name: "O",
+	NumberSites: 1
+	Color: [r,g,b,a],
+	Radius: 2.2,
 	}{
-	...
+	TypeID: 2,
+	Name: "C",
+	NumberSites: 1
+	Color: [r,g,b,a],
+	Radius: 2.4,
+	}{
+	TypeID: 3,
+	Name: "OH",
+	NumberSites: 2,
+	Centers: [[x1,y1,z1],[x2,y2,z2]], #Relative to the center of mass (actual particle 
+	position)
+	Types: [1,0]
+	}{
+	TypeID: 4,
+	Name: "Methanol",
+	Color: [r,g,b,a],
+	NumberSites: 5,
+	Types: [0,0,0,2,3],
+	Centers: [[x1,y1,z1],[x2,y2,z2],[x3,y3,z3],[x4,y4,z4],[x5,y5,z5]],
+	Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
 	}
 
 [ZFP]: (https://github.com/Unidata/compression/tree/master/zfp)
