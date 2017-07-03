@@ -43,7 +43,43 @@ The first integer corresponds to the major format version and is not necessarily
 Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
 A parameter can be something obvious as `x` or `z`, but also an interleaved combination of all `xyz`.
   
-  
+## <a name="naming-conventions"></a>Naming Conventions
+[Go to Top](#top)
+The file format supports several pre-defined parameter names for quick data access:
+<table style="width:97%;">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Parameter</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>x, y, z</code></td>
+<td align="left">Position</td>
+</tr>
+<tr>
+<td align="left"><code>vx, vy, vz</code></td>
+<td align="left">Velocity</td>
+</tr>
+<tr>
+<td align="left"><code>r, g, b</code></td>
+<td align="left">Color</td>
+</tr>
+<tr>
+<td align="left"><code>rad</code></td>
+<td align="left">Radius</td>
+</tr>
+</tbody>
+</table>
+All other parameter names must comply the following rules:
+1. No special characters
+2. Use a descriptive string following rule 1 instead of an abbreviation, if it is not common outside your community
+3. If a parameter contains interleaved data, you can differ from rule 1 using space (e.g. "param1 param2 param3")
 
 ## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
