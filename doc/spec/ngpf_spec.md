@@ -34,12 +34,14 @@ Figure: Schematic of the file format header management.
 ## <a name="general-conventions"></a>General Conventions
 [Go to Top](#top)  
 In the following sections we use some terms that need a clear definition.
-The term `float` corresponds to a IEEE-754 standard floating point value with a size of 32 bit.
-A `byte` is a unsigned integer with the size of 8 bit.
+The term `float` corresponds to an IEEE-754 standard floating point value with a size of 32 bit.
+A `byte` is an unsigned integer with the size of 8 bit.
 The NGPF headers will handle a `string` as a unicode string.
 A string that represents a relative file path always uses forward slashes `/` to separate directories.
-The `Version` of the NGPF file format consists of three integer values separated with a dot (`int.int.int`).
-The first integer corresponds to the major format version and is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller changes and bug fixes. Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`). A parameter can be something obvious as `x` or `z`, but also an interleaved combination of all `xyz`.
+The `Version` of the NGPF file format consists of three integer values and a commit hash separated with a dot (`int.int.int.hash`).
+The first integer corresponds to the major format version and is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller changes and bug fixes.
+Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
+A parameter can be something obvious as `x` or `z`, but also an interleaved combination of all `xyz`.
   
   
 
