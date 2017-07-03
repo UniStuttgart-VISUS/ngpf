@@ -7,6 +7,7 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau
 [Preface](#preface)  
 [General Conventions](#general-conventions)  
 [Global Header](#global-header)  
+[Naming Conventions](#naming-conventions)
 [Frame Header](#frame-header)  
 [Data](#data)  
 [Type File](#type-file)  
@@ -36,12 +37,12 @@ Figure: Schematic of the file format header management.
 In the following sections we use some terms that need a clear definition.
 The term `float` corresponds to an IEEE-754 standard floating point value with a size of 32 bit.
 A `byte` is an unsigned integer with the size of 8 bit.
+The NGPF headers are formatted in `JSON` with a `utf-8` encoding and a byte order mark (BOM).
 The NGPF headers will handle a `string` as a unicode string.
 A string that represents a relative file path always uses forward slashes `/` to separate directories.
 The `Version` of the NGPF file format consists of three integer values and a commit hash separated with a dot (`int.int.int.hash`).
 The first integer corresponds to the major format version and is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller changes and bug fixes.
 Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
-A parameter can be something obvious as `x` or `z`, but also an interleaved combination of all `xyz`.
   
 ## <a name="naming-conventions"></a>Naming Conventions
 [Go to Top](#top)
@@ -74,15 +75,23 @@ The file format supports several pre-defined parameter names for quick data acce
 <td align="left"><code>rad</code></td>
 <td align="left">Radius</td>
 </tr>
+<tr>
+<td align="left"><code>qr, qi, qj, qk</code></td>
+<td align="left">Quaternions</td>
+</tr>
 </tbody>
 </table>
 All other parameter names must comply the following rules:
+
 1. No special characters
 2. Use a descriptive string following rule 1 instead of an abbreviation, if it is not common outside your community
 3. If a parameter contains interleaved data, you can differ from rule 1 using space (e.g. "param1 param2 param3")
 
 ## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
+All strings that contain a path are restricted to reside inside the assigned root directory (directory of the global header).
+This way, the paths are always relative to the root directory.
+Paths beginning with `../` or `/` are not allowed.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Global Header.</caption>
@@ -336,7 +345,10 @@ Additionally, this compression algorithm can vary for each frame and each parame
 
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
-If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file. Additionally, the file can contain meta information about the molecule, e.g. charge.
+If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file.
+NGPF supports a hierarchical structure to reconstruct complex particle combinations or molecules.
+However, only the `Name` and the `TypeID` is required to identify particles.
+A user can also define parameters of any shape to a `typeID`.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Type File.</caption>
@@ -419,14 +431,16 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	MaxSimulationBox: [1.0, 1.0, 1.0],
 	TypeHeader: "typeheader.json",
 	FrameHeader: "frameheader.json",
-	FrameDirectoryPrefix: "frame%0.3i",  |--> fixes the frame directory affix to a three digit integer
-	FrameDirectoryIncrement: 10,         |--> results in frame000, frame010, frame020, ...
+	FrameDirectoryPrefix: "frame%0.3i",
+	FrameDirectoryIncrement: 10,
 	FrameParameterSuffix: "dat",
 	FrameLayoutColumnCount: 6,
 	FrameLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
 	FrameLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
 	}
 
+The parameter `FrameDirectoryPrefix: "frame%0.3i"` fixes the frame directory affix to a three digit integer.
+This results in the directory names `frame000`, `frame010`, `frame020`, ...
 ### Frame Header
 	{
 	FrameID: 0,
@@ -472,8 +486,8 @@ If particles are identified by a type ID, the type ID to element or molecule con
 
 ### Type File
 	{
-	TypeID: 0, # Required
-	Name: "H", # Required
+	TypeID: 0,
+	Name: "H",
 	NumberSites: 1
 	Color: [r,g,b,a],
 	Radius: 1.2,
@@ -493,8 +507,7 @@ If particles are identified by a type ID, the type ID to element or molecule con
 	TypeID: 3,
 	Name: "OH",
 	NumberSites: 2,
-	Centers: [[x1,y1,z1],[x2,y2,z2]], #Relative to the center of mass (actual particle 
-	position)
+	Centers: [[x1,y1,z1],[x2,y2,z2]],
 	Types: [1,0]
 	}{
 	TypeID: 4,
