@@ -13,22 +13,23 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau
 [Example](#example)
 
 ## <a name="preface"></a>Preface 
-This is a particle format that focuses on easy *readability for meta data* and *high compression* for everything else.
+This is a file format that focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
 The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters.
-The user can use the header files for quick reference of the relevant parameters.
+Therefore, changes of meta information, such as bounding-box size, can be applied without the need for re-conversion of the entire data set.
+A user can refer to the header files for a quick reference of relevant parameters.
 The actual data is stored in a *binary format*.
-The user can choose from a variety of binary codecs to encode the data (including RAW, i.e. unencoded).
-The NGPF API offers a variety of *binary codecs* (link to the NGPF API).
+A user can choose from a variety of binary codecs (compression methods) to encode the data (including RAW, i.e. unencoded).
+The NGPF API offers a variety of *binary codecs* from the start (link to the NGPF API).
 The components of the NGPF file format and their interactions are shown in the schematic below.
-A *Global Header* stores the information that applies for all frames, such as *Version number* or the *number of frames*.
+A *Global Header* stores the information correlating to all frames, such as *version number* or the *number of frames*.
 The *Frame Header* contains the meta data of each individual frame (e.g. *number of particles*, *time stamp*).
 An optional *Type File* can be used to assign chemical elements to particles or describe rigid molecules (no inner DOF) via multiple sites/centers per particle (which should then be interpreted as instances of the rigid molecules).
-Additionally, the Type File can contain meta information about the element/molecule.
+Additionally, the Type File can contain meta data about the element/molecule.
 
 <center>
 ![](schematic.png "")
 Figure: Schematic of the file format header management.
-</center>  
+</center>
 
 ## <a name="general-conventions"></a>General Conventions
 [Go to Top](#top)  
