@@ -234,6 +234,7 @@ Inside these directories, the data is split into a individual file for each para
 For example in the `x.dat` file, which is located in the `frame0` directory, the data of parameter `x` for frames `0-9` is stored.
 The stored data is compressed by an algorithm is set by the user.
 Additionally, this compression algorithm can vary for each frame and each parameter.
+If more than one parameter is stored in a file (e.g. x, y, and z coordinates), each parameter must be stored in separate blocks (i.e. interleaved storage is not allowed).
 
 <table style="width:96%;">
 <caption><b>directory for fame 0 to frame 9</b><caption>
