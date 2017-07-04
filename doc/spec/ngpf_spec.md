@@ -1,7 +1,7 @@
 # <a name="top"></a>File Format Specification NGPF
-Version:  
+Version: 0.1-beta
 VISUS University of Stuttgart  
-Oliver Fernandes, Patrick Gralka, Tobias Rau
+Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 
 ## Sections
 [Preface](#preface)  
@@ -400,7 +400,7 @@ A user can also define parameters of any shape to a `typeID`.
 </tr>
 <tr>
 <td align="left"><code>Centers</code></td>
-<td align="left"><code>[[x0, y0, z0],[...],...]</code></td>
+<td align="left"><code>[[x0, y0, z0], [...], ...]</code></td>
 <td align="left">Supported, Multisite</td>
 <td align="left">Centers of the sites relative to the center of mass</td>
 </tr>
@@ -412,7 +412,7 @@ A user can also define parameters of any shape to a `typeID`.
 </tr>
 <tr>
 <td align="left"><code>Quaternions</code></td>
-<td align="left"><code>[[qr,qi,qj,qk],[...],...]</code></td>
+<td align="left"><code>[[qr,qi,qj,qk], [...], ...]</code></td>
 <td align="left">Supported, Multisite</td>
 <td align="left">Quaternions of connected sites. Can also be empty if a site is e.g. a single atom.</td>
 </tr>
@@ -425,9 +425,9 @@ A user can also define parameters of any shape to a `typeID`.
 
 ### Global Header
 	{
-	Identifier:	"NGPF",
+	Identifier: "NGPF",
 	Version: "1.0.0.3fa5735-dirty",
-	Frames : 100,
+	Frames: 100,
 	TimeStampUnit: "seconds",
 	MaxSimulationBox: [1.0, 1.0, 1.0],
 	TypeHeader: "typeheader.json",
@@ -490,33 +490,33 @@ This results in the directory names `frame000`, `frame010`, `frame020`, ...
 	TypeID: 0,
 	Name: "H",
 	NumberSites: 1
-	Color: [r,g,b,a],
+	Color: [r, g, b, a],
 	Radius: 1.2,
 	}{
 	TypeID: 1,
 	Name: "O",
 	NumberSites: 1
-	Color: [r,g,b,a],
+	Color: [r, g, b, a],
 	Radius: 2.2,
 	}{
 	TypeID: 2,
 	Name: "C",
 	NumberSites: 1
-	Color: [r,g,b,a],
+	Color: [r, g, b, a],
 	Radius: 2.4,
 	}{
 	TypeID: 3,
 	Name: "OH",
 	NumberSites: 2,
-	Centers: [[x1,y1,z1],[x2,y2,z2]],
-	Types: [1,0]
+	Centers: [[x1, y1, z1], [x2, y2, z2]],
+	Types: [1, 0]
 	}{
 	TypeID: 4,
 	Name: "Methanol",
-	Color: [r,g,b,a],
+	Color: [r, g, b, a],
 	NumberSites: 5,
-	Types: [0,0,0,2,3],
-	Centers: [[x1,y1,z1],[x2,y2,z2],[x3,y3,z3],[x4,y4,z4],[x5,y5,z5]],
+	Types: [0, 0, 0, 2, 3],
+	Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
 	Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
 	}
 
