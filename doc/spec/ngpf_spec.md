@@ -1,52 +1,59 @@
 # <a name="top"></a>File Format Specification NGPF
-Version: 0.1-beta
-VISUS University of Stuttgart  
+Version: 0.1-beta  
+VISUS, University of Stuttgart  
 Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 
 ## Sections
 [Preface](#preface)  
 [General Conventions](#general-conventions)  
+[Naming Conventions](#naming-conventions)  
+[Supported Binary Codecs](#binary-codecs)  
 [Global Header](#global-header)  
-[Naming Conventions](#naming-conventions)
-[Frame Header](#frame-header)  
+[Time Step Header](#time-step-header)  
 [Data](#data)  
 [Type File](#type-file)  
 [Example](#example)
 
 ## <a name="preface"></a>Preface 
-This is a file format that focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
-The NGPF file format offers human-readable [JSON] headers and a separation of global and per-frame parameters.
-Therefore, changes of meta information, such as bounding-box size, can be applied without the need for re-conversion of the entire data set.
+The NGPF file format that focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
+The NGPF file format offers human-readable [JSON] headers and a separation of global and per-time-step parameters.
+Therefore, changes of a parameter, such as bounding-box size, can be applied without the need for re-conversion of the entire data set.
 A user can refer to the header files for a quick reference of relevant parameters.
 The actual data is stored in a *binary format*.
-A user can choose from a variety of binary codecs (compression methods) to encode the data (including RAW, i.e. unencoded).
-The NGPF API offers a variety of *binary codecs* from the start (link to the NGPF API).
+A user can choose between a variety of *binary codecs* (compression methods) to encode the data (including RAW, i.e. unencoded).
 The components of the NGPF file format and their interactions are shown in the schematic below.
-A *Global Header* stores the information correlating to all frames, such as *version number* or the *number of frames*.
-The *Frame Header* contains the meta data of each individual frame (e.g. *number of particles*, *time stamp*).
+A *Global Header* stores the parameters correlating to all time steps, such as *version number* or the *number of time steps*.
+The *Time Step Header* contains the parameters of each individual time step (e.g. *number of particles*, *time stamp*).
 An optional *Type File* can be used to assign chemical elements to particles or describe rigid molecules (no inner DOF) via multiple sites/centers per particle (which should then be interpreted as instances of the rigid molecules).
-Additionally, the Type File can contain meta data about the element/molecule.
+Additionally, the Type File can contain parameters about the element/molecule.
 
 <center>
-![](schematic.png "")
-Figure: Schematic of the file format header management.
+    <img src="schematic.png" ></img><br>
+    Figure: Schematic of the file format header management.
 </center>
+
 
 ## <a name="general-conventions"></a>General Conventions
 [Go to Top](#top)  
 In the following sections we use some terms that need a clear definition.
+Parameters are properties of a data set and thus are stored in the header files.
+Attributes are properties of particles and are stored in the data files.
+A *time step* represents an interation step of a simulation.
 The term `float` corresponds to an IEEE-754 standard floating point value with a size of 32 bit.
 A `byte` is an unsigned integer with the size of 8 bit.
-The NGPF headers are formatted in `JSON` with a `utf-8` encoding and a byte order mark (BOM).
-The NGPF headers will handle a `string` as a unicode string.
-A string that represents a relative file path always uses forward slashes `/` to separate directories.
+The NGPF headers are formatted in `JSON` with a `utf-8` encoding and a byte order mark (UTF-8 BOM).
+The NGPF headers will handle a `string` as a unicode (UTF-8 BOM) string.
+A string that represents a file path always uses forward slashes `/` to separate directories.
+Additionally, all paths are interpreted relatively to the directory of the global header.
+Paths beginning with `../` or `/` are not allowed.
 The `Version` of the NGPF file format consists of three integer values and a commit hash separated with a dot (`int.int.int.hash`).
-The first integer corresponds to the major format version and is not necessarily compatible with the previous version, the second integer is incremented at feature releases, and the last integer is incremented at smaller changes and bug fixes.
+The first integer corresponds to the major format version (not necessarily compatible to previous versions).
+The second integer is incremented at feature releases (retaining compatibility), and the last integer is incremented at smaller changes and bug fixes.
 Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
   
 ## <a name="naming-conventions"></a>Naming Conventions
-[Go to Top](#top)
-The file format supports several pre-defined parameter names for quick data access:
+[Go to Top](#top)  
+The file format supports several pre-defined attribute names for quick data access:
 <table style="width:97%;">
 <colgroup>
 <col width="25%" />
@@ -54,7 +61,7 @@ The file format supports several pre-defined parameter names for quick data acce
 </colgroup>
 <thead>
 <tr class="header">
-<th align="left">Parameter</th>
+<th align="left">Attribute</th>
 <th align="left">Description</th>
 </tr>
 </thead>
@@ -81,18 +88,39 @@ The file format supports several pre-defined parameter names for quick data acce
 </tr>
 </tbody>
 </table>
-All other parameter names must comply the following rules:
+All other attribute names must comply the following rules:
 
 1. No special characters
-2. Use a descriptive string following rule 1 instead of an abbreviation, if it is not common outside your community
-3. If a parameter contains interleaved data, you can differ from rule 1 using space (e.g. "param1 param2 param3")
+2. Use a descriptive string following rule 1 instead of an abbreviation, if the attribute name is not common outside your community
+3. If a data file contains more than one attribute (combination, such as all positional coordinates), you can differ from rule 1 using space (e.g. "x y z")
+
+## <a name="binary-codecs"></a>Supported Binary Codecs
+[Go to Top](#top)  
+<table style="width:97%;">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Codec</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">Raw</td>
+<td align="left">Raw storage of data</td>
+</tr>
+<tr>
+<td align="left">ZFP</td>
+<td align="left">Floating-point compression scheme <a href="https://github.com/Unidata/compression/tree/master/zfp">ZFP</a> </td>
+</tr>
+</tbody>
+</table>
 
 ## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
-All strings that contain a path are restricted to reside inside the assigned root directory (directory of the global header).
-This way, the paths are always relative to the root directory.
-Paths beginning with `../` or `/` are not allowed.
-
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Global Header.</caption>
 <colgroup>
@@ -119,14 +147,14 @@ Paths beginning with `../` or `/` are not allowed.
 <td align="left">NGPF version number</td>
 </tr>
 <tr>
-<td align="left"><code>Frames</code></td>
+<td align="left"><code>TimeSteps</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">Number of frames</td>
+<td align="left">Number of time steps</td>
 </tr>
 <tr>
-<td align="left"><code>TimeStampUnit</code></td>
+<td align="left"><code>SimulationTimeUnit</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Unit of the <code>TimeStamp</code> parameter of the frame headers, e.g. <code>seconds</code>, <code>custom</code></td>
+<td align="left">Unit of the <code>SimulationTime</code>, e.g. <code>nanoseconds</code>, <code>custom</code></td>
 </tr>
 <tr>
 <td align="left"><code>MaxSimulationBox</code></td>
@@ -136,35 +164,35 @@ Paths beginning with `../` or `/` are not allowed.
 <tr>
 <td align="left"><code>TypeHeader</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame header (see <a href="#type-header">Type File</a>)</td>
+<td align="left">Relative path to the type header (see <a href="#type-header">Type File</a>)</td>
 </tr>
 <tr>
-<td align="left"><code>FrameHeader</code></td>
+<td align="left"><code>TimeStepHeader</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Relative path to the frame header (see <a href="#frame-header">Frame Header</a>) </td>
+<td align="left">Relative path to the time step header (see <a href="#time-step-header">Time Step Header</a>) </td>
 </tr>
 <tr>
-<td align="left"><code>FrameDirectoryPrefix</code></td>
+<td align="left"><code>TimeStepDirectoryPrefix</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Sets the naming scheme for the frame directories</td>
+<td align="left">Sets the naming scheme for the time step directories</td>
 </tr>
 <tr>
-<td align="left"><code>FrameDirectoryIncrement</code></td>
+<td align="left"><code>TimeStepDirectoryIncrement</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">Defines how many frames are stored in one directory</td>
+<td align="left">Defines how many time steps are stored in one directory</td>
 </tr>
 <tr>
-<td align="left"><code>FrameParameterSuffix</code></td>
+<td align="left"><code>TimeStepParameterSuffix</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Defines the suffix that is appended on each parameter file inside the frame directories</td>
+<td align="left">Defines the suffix that is appended on each parameter file inside the time step directories</td>
 </tr>
 <tr>
-<td align="left"><code>FrameLayoutColumnName</code></td>
+<td align="left"><code>TimeStepLayoutColumnName</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
 <td align="left">Name of each column</td>
 </tr>
 <tr>
-<td align="left"><code>FrameLayoutColumnType</code></td>
+<td align="left"><code>TimeStepLayoutColumnType</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
 <td align="left">Name of the column type (e.g. <code>float, int</code>)</td>
 </tr>
@@ -172,12 +200,12 @@ Paths beginning with `../` or `/` are not allowed.
 </table>
 
 
-## <a name="frame-header"></a>Frame Header
+## <a name="time-step-header"></a>Time Step Header
 [Go to Top](#top)  
 
 
 <table style="width:97%;">
-<caption> Parameters accepted by the NGPF Frame Header.</caption>
+<caption> Parameters accepted by the NGPF Time Step Header.</caption>
 <colgroup>
 <col width="24%" />
 <col width="23%" />
@@ -192,9 +220,9 @@ Paths beginning with `../` or `/` are not allowed.
 </thead>
 <tbody>
 <tr>
-<td align="left"><code>FrameID</code></td>
+<td align="left"><code>TimeStep</code></td>
 <td align="left"><code>int</code></td>
-<td align="left">ID of the frame, usually the first frame has id 0</td>
+<td align="left">ID of the time step, usually the first time step has id 0</td>
 </tr>
 <tr>
 <td><code>Particles</code></td>
@@ -202,25 +230,25 @@ Paths beginning with `../` or `/` are not allowed.
 <td align="left">Number of particles</td>
 </tr>
 <tr>
-<td align="left"><code>TimeStamp</code></td>
+<td align="left"><code>SimulationTime</code></td>
 <td align="left"><code>float</code></td>
-<td align="left">Corresponding time to the frame</td>
+<td align="left">Corresponding time to the time step</td>
 </tr>
 <tr>
 <td align="left"><code>SimulationBox</code></td>
 <td align="left"><code>[float, float, float]</code></td>
-<td align="left">Simulation box of the frame</td>
+<td align="left">Simulation box of the time step</td>
 </tr>
 </tr>
 <tr>
 <td align="left"><code>ParameterOffsets</code></td>
 <td align="left"><code>[int, int, ...]</code></td>
-<td align="left">Offset inside the data file to the corresponding frame for each parameter.</td>
+<td align="left">Offset inside the data file to the corresponding time step for each attribute.</td>
 </tr>
 <tr>
 <td align="left"><code>Codecs</code></td>
 <td align="left"><code>[struct, struct, ...]</code></td>
-<td align="left">Defines a struct for each parameter. A struct contains the codec name and  </td>
+<td align="left">Defines a struct for each attribute. A struct contains the codec name and the codec properties.</td>
 </tr>
 </tbody>
 </table>
@@ -229,15 +257,16 @@ Paths beginning with `../` or `/` are not allowed.
 ## <a name="data"></a>Data
 [Go to Top](#top)  
 
-Each frame range is in a separate directory.
-Inside these directories, the data is split into a individual file for each parameter.
-For example in the `x.dat` file, which is located in the `frame0` directory, the data of parameter `x` for frames `0-9` is stored.
-The stored data is compressed by an algorithm is set by the user.
-Additionally, this compression algorithm can vary for each frame and each parameter.
-If more than one parameter is stored in a file (e.g. x, y, and z coordinates), each parameter must be stored in separate blocks (i.e. interleaved storage is not allowed).
+Each time step range is in a separate directory.
+Inside these directories, the data is split into a individual file for each attribute or attribute combination.
+For example in the `x.dat` file, which is located in the `timestep0` directory, the data of attribute `x` for time steps `0-9` is stored.
+The stored data is compressed by an codec specified by the user.
+Additionally, this codec can vary for each time step and each attribute.
+If more than one attribute is stored in a file (e.g. `x y z`), each attribute must be stored in separate blocks (i.e. interleaved storage is not allowed).
+For combined attributes, a specified code applies to all attributes.
 
 <table style="width:96%;">
-<caption><b>directory for fame 0 to frame 9</b><caption>
+<caption><b>directory for time step 0 to time step 9</b><caption>
 <colgroup>
 <col width="16%" />
 <col width="16%" />
@@ -256,28 +285,28 @@ If more than one parameter is stored in a file (e.g. x, y, and z coordinates), e
 <th align="left">b.dat</th>
 </tr>
 <tr>
-<td align="center">ZFP0(x_frame0)</td>
-<td align="center">ZFP0(y_frame0)</td>
-<td align="center">ZFP0(z_frame0)</td>
-<td align="center">RAW0(r_frame0)</td>
-<td align="center">RAW0(g_frame0)</td>
-<td align="center">RAW0(b_frame0)</td>
+<td align="center">ZFP0(x_timestep0)</td>
+<td align="center">ZFP0(y_timestep0)</td>
+<td align="center">ZFP0(z_timestep0)</td>
+<td align="center">RAW0(r_timestep0)</td>
+<td align="center">RAW0(g_timestep0)</td>
+<td align="center">RAW0(b_timestep0)</td>
 </tr>
 <tr>
-<td align="center">ZFP1(x_frame1)</td>
-<td align="center">ZFP1(y_frame1)</td>
-<td align="center">ZFP1(z_frame1)</td>
-<td align="center">RAW1(r_frame1)</td>
-<td align="center">RAW1(g_frame1)</td>
-<td align="center">RAW1(b_frame1)</td>
+<td align="center">ZFP1(x_timestep1)</td>
+<td align="center">ZFP1(y_timestep1)</td>
+<td align="center">ZFP1(z_timestep1)</td>
+<td align="center">RAW1(r_timestep1)</td>
+<td align="center">RAW1(g_timestep1)</td>
+<td align="center">RAW1(b_timestep1)</td>
 </tr>
 <tr>
-<td align="center">ZFP2(x_frame2)</td>
-<td align="center">ZFP2(y_frame2)</td>
-<td align="center">ZFP2(z_frame2)</td>
-<td align="center">RAW2(r_frame2)</td>
-<td align="center">RAW2(g_frame2)</td>
-<td align="center">RAW2(b_frame2)</td>
+<td align="center">ZFP2(x_timestep2)</td>
+<td align="center">ZFP2(y_timestep2)</td>
+<td align="center">ZFP2(z_timestep2)</td>
+<td align="center">RAW2(r_timestep2)</td>
+<td align="center">RAW2(g_timestep2)</td>
+<td align="center">RAW2(b_timestep2)</td>
 </tr>
 <tr>
 <td align="center">...</td>
@@ -291,7 +320,7 @@ If more than one parameter is stored in a file (e.g. x, y, and z coordinates), e
 </table>
 
 <table style="width:96%;">
-<caption><b>directory for fame 10 to frame 19</b><caption>
+<caption><b>directory for time step 10 to time step 19</b><caption>
 <colgroup>
 <col width="16%" />
 <col width="16%" />
@@ -310,28 +339,28 @@ If more than one parameter is stored in a file (e.g. x, y, and z coordinates), e
 <th align="left">b.dat</th>
 </tr>
 <tr>
-<td align="center">ZFP10(x_frame10)</td>
-<td align="center">ZFP10(y_frame10)</td>
-<td align="center">ZFP10(z_frame10)</td>
-<td align="center">RAW10(r_frame10)</td>
-<td align="center">RAW10(g_frame10)</td>
-<td align="center">RAW10(b_frame10)</td>
+<td align="center">ZFP10(x_timestep10)</td>
+<td align="center">ZFP10(y_timestep10)</td>
+<td align="center">ZFP10(z_timestep10)</td>
+<td align="center">RAW10(r_timestep10)</td>
+<td align="center">RAW10(g_timestep10)</td>
+<td align="center">RAW10(b_timestep10)</td>
 </tr>
 <tr>
-<td align="center">ZFP11(x_frame11)</td>
-<td align="center">ZFP11(y_frame11)</td>
-<td align="center">ZFP11(z_frame11)</td>
-<td align="center">RAW11(r_frame11)</td>
-<td align="center">RAW11(g_frame11)</td>
-<td align="center">RAW11(b_frame11)</td>
+<td align="center">ZFP11(x_timestep11)</td>
+<td align="center">ZFP11(y_timestep11)</td>
+<td align="center">ZFP11(z_timestep11)</td>
+<td align="center">RAW11(r_timestep11)</td>
+<td align="center">RAW11(g_timestep11)</td>
+<td align="center">RAW11(b_timestep11)</td>
 </tr>
 <tr>
-<td align="center">ZFP12(x_frame12)</td>
-<td align="center">ZFP12(y_frame12)</td>
-<td align="center">ZFP12(z_frame12)</td>
-<td align="center">RAW12(r_frame12)</td>
-<td align="center">RAW12(g_frame12)</td>
-<td align="center">RAW12(b_frame12)</td>
+<td align="center">ZFP12(x_timestep12)</td>
+<td align="center">ZFP12(y_timestep12)</td>
+<td align="center">ZFP12(z_timestep12)</td>
+<td align="center">RAW12(r_timestep12)</td>
+<td align="center">RAW12(g_timestep12)</td>
+<td align="center">RAW12(b_timestep12)</td>
 </tr>
 <tr>
 <td align="center">...</td>
@@ -346,10 +375,11 @@ If more than one parameter is stored in a file (e.g. x, y, and z coordinates), e
 
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
-If particles are identified by a type ID, the type ID to element or molecule conversion is stored in the type file.
+Particles can be identified by a type ID.
+The properties of a type are specified in the type file.
 NGPF supports a hierarchical structure to reconstruct complex particle combinations or molecules.
 However, only the `Name` and the `TypeID` is required to identify particles.
-A user can also define parameters of any shape to a `typeID`.
+A user can also define parameters of any shape to a `TypeID`.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Type File.</caption>
@@ -414,7 +444,7 @@ A user can also define parameters of any shape to a `typeID`.
 <td align="left"><code>Quaternions</code></td>
 <td align="left"><code>[[qr,qi,qj,qk], [...], ...]</code></td>
 <td align="left">Supported, Multisite</td>
-<td align="left">Quaternions of connected sites. Can also be empty if a site is e.g. a single atom.</td>
+<td align="left">Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom.</td>
 </tr>
 </tbody>
 </table>
@@ -427,25 +457,25 @@ A user can also define parameters of any shape to a `typeID`.
 	{
 	Identifier: "NGPF",
 	Version: "1.0.0.3fa5735-dirty",
-	Frames: 100,
-	TimeStampUnit: "seconds",
+	TimeSteps: 100,
+	SimulationTimeUnit: "nanoseconds",
 	MaxSimulationBox: [1.0, 1.0, 1.0],
 	TypeHeader: "typeheader.json",
-	FrameHeader: "frameheader.json",
-	FrameDirectoryPrefix: "frame%0.3i",
-	FrameDirectoryIncrement: 10,
-	FrameParameterSuffix: "dat",
-	FrameLayoutColumnCount: 6,
-	FrameLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
-	FrameLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
+	TimeStepHeader: "timestepheader.json",
+	TimeStepDirectoryPrefix: "timestep%0.3i",
+	TimeStepDirectoryIncrement: 10,
+	TimeStepParameterSuffix: "dat",
+	TimeStepLayoutColumnCount: 6,
+	TimeStepLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
+	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
 	}
 
-The parameter `FrameDirectoryPrefix: "frame%0.3i"` fixes the frame directory affix to a three digit integer.
-This results in the directory names `frame000`, `frame010`, `frame020`, ...
-### Frame Header
+The parameter `TimeStepDirectoryPrefix: "timestep%0.3i"` fixes the time step directory affix to a three digit integer.
+This results in the directory names `timestep000`, `timestep010`, `timestep020`, ...
+### Time Step Header
 	{
-	FrameID: 0,
-	TimeStamp: 0.0,
+	TimeStepID: 0,
+	SimulationTime: 0.0,
 	Particles: 1000,
 	SimulationBox: [1.0, 1.0, 1.0],
 	ParameterOffsets: [0, 0, 0, 0, 0, 0]],
@@ -464,8 +494,8 @@ This results in the directory names `frame000`, `frame010`, `frame020`, ...
 	 	 encoding: "littleEndian"}
 		]
 	}{
-	FrameID: 1,
-	TimeStamp: 0.1,
+	TimeStepID: 1,
+	SimulationTime: 0.1,
 	Particles: 1000,
 	SimulationBox: [1.0, 1.0, 1.0],
 	ParameterOffset: [32000, 32000, 32000, 8000, 8000, 8000]],
