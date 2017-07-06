@@ -8,6 +8,7 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 [General Conventions](#general-conventions)  
 [Naming Conventions](#naming-conventions)  
 [Supported Binary Codecs](#binary-codecs)  
+[Supported Data Types](#data-types)  
 [Global Header](#global-header)  
 [Time Step Header](#time-step-header)  
 [Data](#data)  
@@ -15,17 +16,17 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 [Example](#example)
 
 ## <a name="preface"></a>Preface 
-The NGPF file format that focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
-The NGPF file format offers human-readable [JSON] headers and a separation of global and per-time-step parameters.
-Therefore, changes of a parameter, such as bounding-box size, can be applied without the need for re-conversion of the entire data set.
-A user can refer to the header files for a quick reference of relevant parameters.
+The NGPF file format focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
+The NGPF file format offers human-readable [JSON] headers and a separation of global and per-time-step *parameters*.
+Therefore, changes of a *parameter*, such as bounding-box size, can be applied without the need for re-conversion or re-processing of the entire data set.
+A user can refer to the header files for a quick overview of relevant *parameters*.
 The actual data is stored in a *binary format*.
 A user can choose between a variety of *binary codecs* (compression methods) to encode the data (including RAW, i.e. unencoded).
 The components of the NGPF file format and their interactions are shown in the schematic below.
-A *Global Header* stores the parameters correlating to all time steps, such as *version number* or the *number of time steps*.
-The *Time Step Header* contains the parameters of each individual time step (e.g. *number of particles*, *time stamp*).
-An optional *Type File* can be used to assign chemical elements to particles or describe rigid molecules (no inner DOF) via multiple sites/centers per particle (which should then be interpreted as instances of the rigid molecules).
-Additionally, the Type File can contain parameters about the element/molecule.
+A *Global Header* stores the *parameters* relating to all time steps, such as *version number* or the *number of time steps*.
+The *Time Step Header* contains the *parameters* of each individual time step (e.g. *number of particles*, *time stamp*).
+An optional *Type File* can be used to assign chemical elements to particles, set a per-type color or radius, or describe rigid molecules (no inner DOF) via multiple sites/centers per particle (which should then be interpreted as instances of the rigid molecules).
+Additionally, the Type File can contain *parameters* about the element/molecule, such as atomic mass, charge, etc.
 
 <center>
     <img src="schematic.png" ></img><br>
@@ -35,25 +36,28 @@ Additionally, the Type File can contain parameters about the element/molecule.
 
 ## <a name="general-conventions"></a>General Conventions
 [Go to Top](#top)  
-In the following sections we use some terms that need a clear definition.
-Parameters are properties of a data set and thus are stored in the header files.
-Attributes are properties of particles and are stored in the data files.
-A *time step* represents an interation step of a simulation.
+
+In the following we define some terms that will be used throughout this document.
+*Parameters* are properties of a data set (or the simulation that generated it) and thus are stored in the header files.
+*Attributes* are properties of particles and are stored in the data files.
+A *time step* represents a monotonically increasing iteration step of a simulation.
+It can be complemented by a real-time *time stamp* relative to the simulation start time.
 The term `float` corresponds to an IEEE-754 standard floating point value with a size of 32 bit.
-A `byte` is an unsigned integer with the size of 8 bit.
-The NGPF headers are formatted in `JSON` with a `utf-8` encoding and a byte order mark (UTF-8 BOM).
-The NGPF headers will handle a `string` as a unicode (UTF-8 BOM) string.
+A `byte` is an integer with the size of 8 bit.
+The NGPF headers use `JSON` notation with a `utf-8` encoding and a byte order mark (UTF-8 BOM).
+The NGPF headers will handle a `string` as a unicode (UTF-8) string.
 A string that represents a file path always uses forward slashes `/` to separate directories.
-Additionally, all paths are interpreted relatively to the directory of the global header.
-Paths beginning with `../` or `/` are not allowed.
-The `Version` of the NGPF file format consists of three integer values and a commit hash separated with a dot (`int.int.int.hash`).
+Additionally, all paths are interpreted relative to the directory where the global header is stored.
+Paths beginning with `/` are not allowed.
+Paths must not contain `../` at all.
+The `Version` of the NGPF file format consists of three integer values and a commit hash separated by a dot (`int.int.int.hash`).
 The first integer corresponds to the major format version (not necessarily compatible to previous versions).
 The second integer is incremented at feature releases (retaining compatibility), and the last integer is incremented at smaller changes and bug fixes.
 Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
   
 ## <a name="naming-conventions"></a>Naming Conventions
 [Go to Top](#top)  
-The file format supports several pre-defined attribute names for quick data access:
+The file format supports several pre-defined *attribute* names for convenience:
 <table style="width:97%;">
 <colgroup>
 <col width="25%" />
@@ -84,15 +88,19 @@ The file format supports several pre-defined attribute names for quick data acce
 </tr>
 <tr>
 <td align="left"><code>qr, qi, qj, qk</code></td>
-<td align="left">Quaternions</td>
+<td align="left">Quaternion</td>
 </tr>
 </tbody>
 </table>
-All other attribute names must comply the following rules:
+All other *attribute* names must comply the following rules:
 
 1. No special characters
-2. Use a descriptive string following rule 1 instead of an abbreviation, if the attribute name is not common outside your community
-3. If a data file contains more than one attribute (combination, such as all positional coordinates), you can differ from rule 1 using space (e.g. "x y z")
+2. Use a descriptive string following rule 1 instead of an abbreviation, if the *attribute* name is not common outside your community
+3. If a data file contains more than one *attribute* (combination, such as all positional coordinates), you can differ from rule 1 using space (e.g. "x y z")
+
+## <a name="data-types"></a>Supported Data Types
+[Go to Top](#top)  
+TODO
 
 ## <a name="binary-codecs"></a>Supported Binary Codecs
 [Go to Top](#top)  
@@ -114,7 +122,11 @@ All other attribute names must comply the following rules:
 </tr>
 <tr>
 <td align="left">ZFP</td>
-<td align="left">Floating-point compression scheme <a href="https://github.com/Unidata/compression/tree/master/zfp">ZFP</a> </td>
+<td align="left">Floating-point compression scheme <a href="https://github.com/Unidata/compression/tree/master/zfp">ZFP</a></td>
+</tr>
+<tr>
+<td align="left">RLE</td>
+<td align="left">Run-length encoding</td>
 </tr>
 </tbody>
 </table>
@@ -158,8 +170,8 @@ All other attribute names must comply the following rules:
 </tr>
 <tr>
 <td align="left"><code>MaxSimulationBox</code></td>
-<td align="left"><code>[float, float, float]</code></td>
-<td align="left">Maximum simulation box of the data set</td>
+<td align="left"><code>[(min) float, (min) float, (min) float, (max) float, ...]</code></td>
+<td align="left">Union of simulation boxes over all time steps of the data set</td>
 </tr>
 <tr>
 <td align="left"><code>TypeHeader</code></td>
@@ -174,7 +186,7 @@ All other attribute names must comply the following rules:
 <tr>
 <td align="left"><code>TimeStepDirectoryPrefix</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Sets the naming scheme for the time step directories</td>
+<td align="left">Sets the naming scheme for the time step directories (as C format string)</td>
 </tr>
 <tr>
 <td align="left"><code>TimeStepDirectoryIncrement</code></td>
@@ -182,9 +194,9 @@ All other attribute names must comply the following rules:
 <td align="left">Defines how many time steps are stored in one directory</td>
 </tr>
 <tr>
-<td align="left"><code>TimeStepParameterSuffix</code></td>
+<td align="left"><code>TimeStepAttributeExtension</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Defines the suffix that is appended on each parameter file inside the time step directories</td>
+<td align="left">Defines the file extension of the attribute files inside the time step directories</td>
 </tr>
 <tr>
 <td align="left"><code>TimeStepLayoutColumnName</code></td>
@@ -236,7 +248,7 @@ All other attribute names must comply the following rules:
 </tr>
 <tr>
 <td align="left"><code>SimulationBox</code></td>
-<td align="left"><code>[float, float, float]</code></td>
+<td align="left"><code>[(min) float, (min) float, (min) float, (max) float, ...]</code></td>
 <td align="left">Simulation box of the time step</td>
 </tr>
 </tr>
@@ -258,12 +270,12 @@ All other attribute names must comply the following rules:
 [Go to Top](#top)  
 
 Each time step range is in a separate directory.
-Inside these directories, the data is split into a individual file for each attribute or attribute combination.
-For example in the `x.dat` file, which is located in the `timestep0` directory, the data of attribute `x` for time steps `0-9` is stored.
+Inside these directories, the data is split into a individual file for each *attribute* or *attribute* combination.
+For example in the `x.dat` file, which is located in the `timestep0` directory, the data of *attribute* `x` for time steps `0-9` is stored.
 The stored data is compressed by an codec specified by the user.
-Additionally, this codec can vary for each time step and each attribute.
-If more than one attribute is stored in a file (e.g. `x y z`), each attribute must be stored in separate blocks (i.e. interleaved storage is not allowed).
-For combined attributes, a specified code applies to all attributes.
+Additionally, this codec can vary for each time step and each *attribute*.
+If more than one *attribute* is stored in a file (e.g. `x y z`), each *attribute* must be stored in separate blocks (i.e. interleaved storage is not allowed).
+For combined *attributes*, a specified code applies to all *attributes*.
 
 <table style="width:96%;">
 <caption><b>directory for time step 0 to time step 9</b><caption>
@@ -379,7 +391,7 @@ Particles can be identified by a type ID.
 The properties of a type are specified in the type file.
 NGPF supports a hierarchical structure to reconstruct complex particle combinations or molecules.
 However, only the `Name` and the `TypeID` is required to identify particles.
-A user can also define parameters of any shape to a `TypeID`.
+A user can also define *parameters* of any shape to a `TypeID`.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Type File.</caption>
@@ -459,18 +471,18 @@ A user can also define parameters of any shape to a `TypeID`.
 	Version: "1.0.0.3fa5735-dirty",
 	TimeSteps: 100,
 	SimulationTimeUnit: "nanoseconds",
-	MaxSimulationBox: [1.0, 1.0, 1.0],
+	MaxSimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
 	TypeHeader: "typeheader.json",
 	TimeStepHeader: "timestepheader.json",
-	TimeStepDirectoryPrefix: "timestep%0.3i",
+	TimeStepDirectoryPrefix: "timestep%.3i",
 	TimeStepDirectoryIncrement: 10,
-	TimeStepParameterSuffix: "dat",
+	TimeStepAttributeExtension: "dat",
 	TimeStepLayoutColumnCount: 6,
 	TimeStepLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
 	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
 	}
 
-The parameter `TimeStepDirectoryPrefix: "timestep%0.3i"` fixes the time step directory affix to a three digit integer.
+The *parameter* `TimeStepDirectoryPrefix: "timestep%0.3i"` fixes the time step directory affix to a three digit integer.
 This results in the directory names `timestep000`, `timestep010`, `timestep020`, ...
 ### Time Step Header
 	{
