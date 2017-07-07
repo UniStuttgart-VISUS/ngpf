@@ -13,7 +13,8 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 [Time Step Header](#time-step-header)  
 [Data](#data)  
 [Type File](#type-file)  
-[Example](#example)
+[Domain Decomposition](#domain-decomposition)  
+[Examples](#examples)
 
 ## <a name="preface"></a>Preface 
 The NGPF file format focuses on easy *readability of meta data* and *large particle-based* data sets from computational physics, chemistry, biology and more.
@@ -462,7 +463,56 @@ A user can also define *parameters* of any shape to a `TypeID`.
 </table>
 
 
-## <a name="example"></a>Example
+## <a name="domain-decomposition"></a>Domain Decomposition
+[Go to Top](#top)  
+
+In a decomposed simulation, each rank is in charge of one domain.
+The most efficient way of writing data is when each rank writes its own data to the storage device.
+The optional *Domain Decomposition Header* stores the *parameters* of the domains.
+Because every rank writes its own data, each rank also encodes its own piece of the data.
+Subsequently, the decoder needs to know the *offsets to each piece* to be able to reconstruct the data as intended.
+For this purpose, an additional *offset data file* will be generated for each *attribute*.
+
+<table style="width:97%;">
+<caption> Parameters accepted by the NGPF Domain Decomposition Header.</caption>
+<colgroup>
+<col width="24%" />
+<col width="23%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr>
+<th align="left">Parameter</th>
+<th align="left">Format</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>TimeStepID</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">ID of the time step</td>
+</tr>
+<tr>
+<td><code>Domains</code></td>
+<td align="left"><code>int</code></td>
+<td align="left">Number of total domains for this time step</td>
+</tr>
+<tr>
+<td align="left"><code>DDBoxes</code></td>
+<td align="left"><code>[[float, ...], [float, ...], ...]</code></td>
+<td align="left">Coordinates of the decomposed regions</td>
+</tr>
+<tr>
+<td align="left"><code>DDOffsetExtension</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">Extension of the offset attribute file</td>
+</tr>
+</tbody>
+</table>
+
+
+## <a name="examples"></a>Examples
 [Go to Top](#top)  
 
 ### Global Header
@@ -489,7 +539,7 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	TimeStepID: 0,
 	SimulationTime: 0.0,
 	Particles: 1000,
-	SimulationBox: [1.0, 1.0, 1.0],
+	SimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
 	ParameterOffsets: [0, 0, 0, 0, 0, 0]],
 	Codecs:	[
 		{name: "ZFP",
@@ -527,7 +577,7 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 		]
 	}
 
-### Type File
+### Type File (optional)
 	{
 	TypeID: 0,
 	Name: "H",
@@ -560,6 +610,23 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	Types: [0, 0, 0, 2, 3],
 	Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
 	Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
+	}
+
+### Domain Decomposition Header (optional)
+
+	{
+	TimeStepID: 0,
+	Domains: 8,
+	DDOffsetExtension: "offset",
+	DDBoxes: [
+		 [-1.0, -1.0, -1.0, 0.0, 0.0, 0.0],
+		 [-1.0, -1.0,  0.0, 0.0, 0.0, 1.0],
+		 [-1.0,  0.0, -1.0, 0.0, 1.0, 0.0],
+		 [-1.0,  0.0,  0.0, 0.0, 1.0, 1.0],
+		 [ 0.0, -1.0, -1.0, 1.0, 0.0, 0.0],
+		 [ 0.0, -1.0,  0.0, 1.0, 0.0, 1.0],
+		 [ 0.0,  0.0, -1.0, 1.0, 1.0, 0.0],
+		 [ 0.0,  0.0,  0.0, 1.0, 1.0, 1.0]]
 	}
 
 [ZFP]: (https://github.com/Unidata/compression/tree/master/zfp)
