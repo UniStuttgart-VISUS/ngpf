@@ -46,7 +46,7 @@ It can be complemented by a real-time *time stamp* relative to the simulation st
 The term `float` corresponds to an IEEE-754 standard floating point value with a size of 32 bit.
 A `byte` is an integer with the size of 8 bit.
 The NGPF headers use `JSON` notation with a `utf-8` encoding and a byte order mark (UTF-8 BOM).
-The NGPF headers will handle a `string` as a unicode (UTF-8) string.
+The NGPF headers will handle a `string` as an ASCII and a `unicode` as a unicode (UTF-8) string.
 A string that represents a file path always uses forward slashes `/` to separate directories.
 Additionally, all paths are interpreted relative to the directory where the global header is stored.
 Paths beginning with `/` are not allowed.
@@ -94,9 +94,53 @@ The file format supports several pre-defined *attribute* names for convenience:
 </tbody>
 </table>
 
+Attribute bricking (e.g. `"x y z"`) is only allowed if the involved attributes are of the same type.
+For the type `byte` only a composition of four `byte` attributes is allowed (often used for `"r g b a"`).
+
 ## <a name="data-types"></a>Supported Data Types
 [Go to Top](#top)  
-TODO
+<table style="width:97%;">
+<colgroup>
+<col width="25%" />
+<col width="75%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>(u)int_64</code></td>
+<td align="left">64-bit (unsigned) integer</td>
+</tr>
+<tr>
+<td align="left"><code>(u)int_32</code></td>
+<td align="left">32-bit (unsigned) integer</td>
+</tr>
+<tr>
+<td align="left"><code>byte</code></td>
+<td align="left">8-bit unsigned integer (<code>uint8_t</code>)</td>
+</tr>
+<tr>
+<td align="left"><code>double</code></td>
+<td align="left">IEEE-754 standard 64-bit floating point value</td>
+</tr>
+<tr>
+<td align="left"><code>float</code></td>
+<td align="left">IEEE-754 standard 32-bit floating point value</td>
+</tr>
+<tr>
+<td align="left"><code>string</code></td>
+<td align="left">ASCII string value</td>
+</tr>
+<tr>
+<td align="left"><code>unicode</code></td>
+<td align="left">UTF-8 string value</td>
+</tr>
+</tbody>
+</table>
 
 ## <a name="binary-codecs"></a>Supported Binary Codecs
 [Go to Top](#top)  
@@ -124,6 +168,10 @@ TODO
 <td align="left">RLE</td>
 <td align="left">Run-length encoding</td>
 </tr>
+<tr>
+<td align="left">RLE(DE)</td>
+<td align="left">Run-length encoding of delta encoded data</td>
+</tr>
 </tbody>
 </table>
 
@@ -147,7 +195,7 @@ TODO
 <tr>
 <td align="left"><code>Identifier</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Identifies the file as NGPF global header</td>
+<td align="left">Identifies the file as NGPF global header (fixed value<code>"NGPF"</code>)</td>
 </tr>
 <tr>
 <td align="left"><code>Version</code></td>
@@ -397,8 +445,38 @@ Particles can be identified by a type ID.
 The properties of a type are specified in the type file.
 NGPF supports a hierarchical structure to reconstruct complex particle combinations or molecules.
 However, only the `Name` and the `TypeID` is required to identify particles.
-A user can also define *parameters* of any shape to a `TypeID`.
+A user can also define *parameters* of any shape to a `TypeID` using the `CustomParameter`.
+The `CustomParameter` is defined at the beginning of the type file and takes an array of structs.
+In a single struct the `Name` and the `Type` of a custom parameter should be defined.
 
+<table style="width:97%;">
+<caption><code>CustomParameter</code></caption>
+<colgroup>
+<col width="24%" />
+<col width="23%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr>
+<th align="left">Parameter</th>
+<th align="left">Format</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>Name</code></td>
+<td align="left"><code>unicode</code></td>
+<td align="left">Name of the custom parameter</td>
+</tr>
+<tr>
+<td><code>Type</code></td>
+<td align="left"><code>string or [string, ...]</code></td>
+<td align="left">Defines the type and the Format of the  custom parameter</td>
+</tr>
+</tbody>
+</table>
+<br> 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Type File.</caption>
 <colgroup>
@@ -466,7 +544,11 @@ A user can also define *parameters* of any shape to a `TypeID`.
 </tr>
 </tbody>
 </table>
-
+<br>
+<center>
+    <img src="schematic_type.png" ></img><br>
+    Figure: Schematic with included type file.
+</center>
 
 ## <a name="domain-decomposition"></a>Domain Decomposition
 [Go to Top](#top)  
@@ -521,7 +603,11 @@ The offsets are a number of bytes and the offset data file will be dumped to the
 </tr>
 </tbody>
 </table>
-
+<br>
+<center>
+    <img src="schematic_dd.png" ></img><br>
+    Figure: Schematic with included domain decomposition.
+</center>
 
 ## <a name="examples"></a>Examples
 [Go to Top](#top)  
@@ -555,18 +641,18 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	SimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
 	ParameterOffsets: [0, 0, 0, 0, 0, 0]],
 	Codecs:	[
-		{name: "ZFP",
-	 	 epsilon: 0.1},
-		{name: "ZFP",
-		 epsilon: 0.1},
-		{name: "ZFP",
-	 	 epsilon: 0.1},
-		{name: "RAW",
-	 	 encoding: "littleEndian"},
-		{name: "RAW",
-	 	 encoding: "littleEndian"},
-		{name: "RAW",
-	 	 encoding: "littleEndian"}
+		{Name: "ZFP",
+	 	 Epsilon: 0.1},
+		{Name: "ZFP",
+		 Epsilon: 0.1},
+		{Name: "ZFP",
+	 	 Epsilon: 0.1},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"}
 		]
 	}{
 	TimeStepID: 1,
@@ -575,63 +661,65 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	SimulationBox: [1.0, 1.0, 1.0],
 	ParameterOffset: [32000, 32000, 32000, 8000, 8000, 8000]],
 	Codecs:	[
-		{name: "ZFP",
-	 	 epsilon: 0.1},
-		{name: "ZFP",
-		 epsilon: 0.1},
-		{name: "ZFP",
-	 	 epsilon: 0.1},
-		{name: "RAW",
-	 	 encoding: "littleEndian"},
-		{name: "RAW",
-	 	 encoding: "littleEndian"},
-		{name: "RAW",
-	 	 encoding: "littleEndian"}
+		{Name: "ZFP",
+	 	 Epsilon: 0.1},
+		{Name: "ZFP",
+		 Epsilon: 0.1},
+		{Name: "ZFP",
+	 	 Epsilon: 0.1},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"},
+		{Name: "RAW",
+	 	 Encoding: "littleEndian"}
 		]
 	}
 
 ### Type File (optional)
     {
-        CustomParameters: [{name: "rho",
-             type: "float"},
-             {}]
-	{
-	TypeID: 0,
-	Name: "H",
-	NumberSites: 1
-	Color: [r, g, b, a],
-	Radius: 1.2,
-	}{
-	TypeID: 1,
-	Name: "O",
-	NumberSites: 1
-	Color: [r, g, b, a],
-	Radius: 2.2,
-	}{
-	TypeID: 2,
-	Name: "C",
-	NumberSites: 1
-	Color: [r, g, b, a],
-	Radius: 2.4,
-	}{
-	TypeID: 3,
-	Name: "OH",
-	NumberSites: 2,
-	Centers: [[x1, y1, z1], [x2, y2, z2]],
-	Types: [1, 0]
-	}{
-	TypeID: 4,
-	Name: "Methanol",
-	Color: [r, g, b, a],
-	NumberSites: 5,
-	Types: [0, 0, 0, 2, 3],
-	Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
-	Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
-	}{
-    TypeID: 5,
-    Name: "Hugo"
-    rho: 1.2
-    }
+    CustomParameters: [{Name: "rho",
+                        Type: "float"},
+	                   {Name: "charge",
+	                    Type: "int"}]
+		{
+		TypeID: 0,
+		Name: "H",
+		NumberSites: 1
+		Color: [r, g, b, a],
+		Radius: 1.2,
+		}{
+		TypeID: 1,
+		Name: "O",
+		NumberSites: 1
+		Color: [r, g, b, a],
+		Radius: 2.2,
+		}{
+		TypeID: 2,
+		Name: "C",
+		NumberSites: 1
+		Color: [r, g, b, a],
+		Radius: 2.4,
+		}{
+		TypeID: 3,
+		Name: "OH",
+		NumberSites: 2,
+		Centers: [[x1, y1, z1], [x2, y2, z2]],
+		Types: [1, 0]
+		}{
+		TypeID: 4,
+		Name: "Methanol",
+		Color: [r, g, b, a],
+		NumberSites: 5,
+		Types: [0, 0, 0, 2, 3],
+		Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
+		Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
+		}{
+    	TypeID: 5,
+    	Name: "Hugo",
+    	rho: 1.2,
+		charge: -1
+    	}
     }
 
 
