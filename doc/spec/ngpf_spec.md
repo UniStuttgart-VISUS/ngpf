@@ -93,11 +93,6 @@ The file format supports several pre-defined *attribute* names for convenience:
 </tr>
 </tbody>
 </table>
-All other *attribute* names must comply the following rules:
-
-1. No special characters
-2. Use a descriptive string following rule 1 instead of an abbreviation, if the *attribute* name is not common outside your community
-3. If a data file contains more than one *attribute* (combination, such as all positional coordinates), you can differ from rule 1 using space (e.g. "x y z")
 
 ## <a name="data-types"></a>Supported Data Types
 [Go to Top](#top)  
@@ -596,6 +591,10 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	}
 
 ### Type File (optional)
+    {
+        CustomParameters: [{name: "rho",
+             type: "float"},
+             {}]
 	{
 	TypeID: 0,
 	Name: "H",
@@ -628,7 +627,13 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	Types: [0, 0, 0, 2, 3],
 	Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
 	Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
-	}
+	}{
+    TypeID: 5,
+    Name: "Hugo"
+    rho: 1.2
+    }
+    }
+
 
 ### Domain Decomposition Header (optional)
 
