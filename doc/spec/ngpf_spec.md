@@ -175,11 +175,6 @@ TODO
 <td align="left">Union of simulation boxes over all time steps of the data set</td>
 </tr>
 <tr>
-<td align="left"><code>TypeHeader</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Relative path to the type header (see <a href="#type-header">Type File</a>)</td>
-</tr>
-<tr>
 <td align="left"><code>TimeStepHeader</code></td>
 <td align="left"><code>string</code></td>
 <td align="left">Relative path to the time step header (see <a href="#time-step-header">Time Step Header</a>) </td>
@@ -208,6 +203,21 @@ TODO
 <td align="left"><code>TimeStepLayoutColumnType</code></td>
 <td align="left"><code>[string, string, ...]</code></td>
 <td align="left">Name of the column type (e.g. <code>float, int</code>)</td>
+</tr>
+<tr>
+<td align="left"><code>TypeHeader</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">(O)Relative path to the type header (see <a href="#type-header">Type File</a>)</td>
+</tr>
+<tr>
+<td align="left"><code>DDHeader</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">(O)Relative path to the domain decomposition header (see <a href="#domain-decomposition-header">Domain Decomposition Header</a>) </td>
+</tr>
+<tr>
+<td align="left"><code>DDOffsetExtension</code></td>
+<td align="left"><code>string</code></td>
+<td align="left">(O)Extension of the offset attribute file</td>
 </tr>
 </tbody>
 </table>
@@ -472,6 +482,7 @@ The optional *Domain Decomposition Header* stores the *parameters* of the domain
 Because every rank writes its own data, each rank also encodes its own piece of the data.
 Subsequently, the decoder needs to know the *offsets to each piece* to be able to reconstruct the data as intended.
 For this purpose, an additional *offset data file* will be generated for each *attribute*.
+The offsets are a number of bytes and the offset data file will be dumped to the disk in a RAW encoded binary.
 
 <table style="width:97%;">
 <caption> Parameters accepted by the NGPF Domain Decomposition Header.</caption>
@@ -499,14 +510,19 @@ For this purpose, an additional *offset data file* will be generated for each *a
 <td align="left">Number of total domains for this time step</td>
 </tr>
 <tr>
-<td align="left"><code>DDBoxes</code></td>
-<td align="left"><code>[[float, ...], [float, ...], ...]</code></td>
-<td align="left">Coordinates of the decomposed regions</td>
+<td><code>DDOccupation</code></td>
+<td align="left"><code>[int, int, ...]</code></td>
+<td align="left">Number of particles in each domain.</td>
 </tr>
 <tr>
-<td align="left"><code>DDOffsetExtension</code></td>
+<td><code>DDType</code></td>
 <td align="left"><code>string</code></td>
-<td align="left">Extension of the offset attribute file</td>
+<td align="left">Type of the domain decomposition, e.g. <code>box</code>, <code>BSP</code> (Binary Space Partitioning).</td>
+</tr>
+<tr>
+<td align="left"><code>DDGeometry</code></td>
+<td align="left"><code>[[float, ...], [float, ...], ...]</code></td>
+<td align="left">Coordinates of the decomposed regions</td>
 </tr>
 </tbody>
 </table>
@@ -522,14 +538,16 @@ For this purpose, an additional *offset data file* will be generated for each *a
 	TimeSteps: 100,
 	SimulationTimeUnit: "nanoseconds",
 	MaxSimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
-	TypeHeader: "typeheader.json",
 	TimeStepHeader: "timestepheader.json",
 	TimeStepDirectoryPrefix: "timestep%.3i",
 	TimeStepDirectoryIncrement: 10,
 	TimeStepAttributeExtension: "dat",
 	TimeStepLayoutColumnCount: 6,
 	TimeStepLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
-	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"]
+	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"],
+	TypeHeader: "typeheader.json",
+	DDHeader: "ddheader.json",
+	DDOffsetExtension: "offset"
 	}
 
 The *parameter* `TimeStepDirectoryPrefix: "timestep%0.3i"` fixes the time step directory affix to a three digit integer.
@@ -617,16 +635,16 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	{
 	TimeStepID: 0,
 	Domains: 8,
-	DDOffsetExtension: "offset",
-	DDBoxes: [
-		 [-1.0, -1.0, -1.0, 0.0, 0.0, 0.0],
-		 [-1.0, -1.0,  0.0, 0.0, 0.0, 1.0],
-		 [-1.0,  0.0, -1.0, 0.0, 1.0, 0.0],
-		 [-1.0,  0.0,  0.0, 0.0, 1.0, 1.0],
-		 [ 0.0, -1.0, -1.0, 1.0, 0.0, 0.0],
-		 [ 0.0, -1.0,  0.0, 1.0, 0.0, 1.0],
-		 [ 0.0,  0.0, -1.0, 1.0, 1.0, 0.0],
-		 [ 0.0,  0.0,  0.0, 1.0, 1.0, 1.0]]
+	DDOccupation: [131, 119, 52, 195, 147, 110, 144, 102],
+	DDType: "box",
+	DDGeometry: [[-1.0, -1.0, -1.0, 0.0, 0.0, 0.0],
+		     [-1.0, -1.0,  0.0, 0.0, 0.0, 1.0],
+		     [-1.0,  0.0, -1.0, 0.0, 1.0, 0.0],
+		     [-1.0,  0.0,  0.0, 0.0, 1.0, 1.0],
+		     [ 0.0, -1.0, -1.0, 1.0, 0.0, 0.0],
+		     [ 0.0, -1.0,  0.0, 1.0, 0.0, 1.0],
+		     [ 0.0,  0.0, -1.0, 1.0, 1.0, 0.0],
+		     [ 0.0,  0.0,  0.0, 1.0, 1.0, 1.0]]
 	}
 
 [ZFP]: (https://github.com/Unidata/compression/tree/master/zfp)
