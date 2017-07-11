@@ -138,10 +138,10 @@ Parameters accepted by the NGPF Time Step Header.
 Each time step range is in a separate directory.
 Inside these directories, the data is split into a individual file for each *attribute* or *attribute* combination.
 For example in the `x.dat` file, which is located in the `timestep0` directory, the data of *attribute* `x` for time steps `0-9` is stored.
-The stored data is compressed by an codec specified by the user.
+The stored data is compressed by a codec specified by the user.
 Additionally, this codec can vary for each time step and each *attribute*.
 If more than one *attribute* is stored in a file (e.g. `x y z`), each *attribute* must be stored in separate blocks (i.e. interleaved storage is not allowed).
-For combined *attributes*, a specified code applies to all *attributes*.
+For combined *attributes*, a specified codec applies to all *attributes*.
 
 directory for time step 0 to time step 9  
 
@@ -163,7 +163,8 @@ directory for time step 10 to time step 19
 
 ## <a name="time-independent-data"></a>Time Independent Data (optional)
 
-An attribute that is marked as *time independent data* is constant for the whole simulation, e.g. links between particles. The *TID header* defines the following parameters.
+An attribute that is marked as *time independent data* is constant for the whole simulation, e.g. links between particles.
+The *TID header* defines the following parameters.
 
 | Parameter | Format | Description |
 |:--|:--|:--|
@@ -179,7 +180,7 @@ Figure: Schematic with included time independent data.
 [Go to Top](#top)  
 Particles can be identified by a type ID.
 The properties of a type are specified in the type file.
-NGPF supports a hierarchical structure to reconstruct complex particle combinations or molecules.
+NGPF supports a hierarchical structure to reconstruct complex particle combinations or rigid molecules.
 However, only the `Name` and the `TypeID` is required to identify particles.
 A user can also define *parameters* of any shape to a `TypeID` using the `CustomParameter`.
 The `CustomParameter` is defined at the beginning of the type file and takes an array of structs.
