@@ -50,10 +50,10 @@ A string that represents a file path always uses forward slashes `/` to separate
 Additionally, all paths are interpreted relative to the directory where the global header is stored.
 Paths beginning with `/` are not allowed.
 Paths must not contain `../` at all.
-The `Version` of the NGPF file format consists of three integer values and a commit hash separated by a dot (`int.int.int.hash`).
+The `Version` of the NGPF file format consists of three integer values and a commit hash separated by a dot (`int64.int64.int64.hash`).
 The first integer corresponds to the major format version (not necessarily compatible to previous versions).
 The second integer is incremented at feature releases (retaining compatibility), and the last integer is incremented at smaller changes and bug fixes.
-Integer `int` and float `float` values also support the scientific number format (e.g. `1e2` for `int` and `float` or `1.0e2(.0)` only for `float`).
+Integers: `(u)int64`, `(u)int32` and floats `float`, `double` values also support the scientific number format (e.g. `1e2` for integers and floats or `1.0e2(.0)` only for floats). 
   
 ## <a name="naming-conventions"></a>Naming Conventions
 [Go to Top](#top)  
@@ -61,6 +61,8 @@ The file format supports several pre-defined *attribute* names for convenience:
 
 | Attribute | Description |
 | :-- | :-- |
+| `type` | Type (see [Type Header](#type-header)) |
+| `id` | Particle ID |
 | `x, y, z` | Position |
 | `vx, vy, vz` | Velocity |
 | `r, g, b` | Color |
@@ -75,9 +77,9 @@ For the type `byte` only a composition of four `byte` attributes is allowed (oft
 
 | Type | Description |
 | :-- | :-- |
-| `(u)int_64` | 64-bit (unsigned) integer |
-| `(u)int_32` | 32-bit (unsigned) integer |
-| `byte` | 8-bit unsigned integer (`uint8_t`) |
+| `(u)int64` | 64-bit (unsigned) integer |
+| `(u)int32` | 32-bit (unsigned) integer |
+| `byte` | 8-bit unsigned integer (e.g. `uint8_t`) |
 | `double` | IEEE-754 standard 64-bit floating point value |
 | `float` | IEEE-754 standard 32-bit floating point value |
 | `string` | ASCII string value |
@@ -101,13 +103,13 @@ Parameters accepted by the NGPF Global Header.
 | Parameter | Format | Description |
 | :-- | :-- | :-- |
 | `Identifier` | `string` | Identifies the file as NGPF global header (fixed value`"NGPF"`) |
-| `Version` | `"int.int.int.hash"` | NGPF version number |
-| `TimeSteps` | `int` | Number of time steps |
+| `Version` | `"int64.int64.int64.hash"` | NGPF version number |
+| `TimeSteps` | `int64` | Number of time steps |
 | `SimulationTimeUnit` | `string` | Unit of the `SimulationTime`, e.g. `nanoseconds`, `custom` |
-| `MaxSimulationBox` | `[(min) float, (min) float, (min) float, (max) float, ...]` | Union of simulation boxes over all time steps of the data set |
+| `MaxSimulationBox` | `[(min) double, (min) double, (min) double, (max) double, ...]` | Union of simulation boxes over all time steps of the data set |
 | `TimeStepHeader` | `string` | Relative path to the time step header (see [Time Step Header](#time-step-header)) |
 | `TimeStepDirectoryPrefix` | `string` | Sets the naming scheme for the time step directories (as C format string) |
-| `TimeStepDirectoryIncrement` | `int` | Defines how many time steps are stored in one directory |
+| `TimeStepDirectoryIncrement` | `int64` | Defines how many time steps are stored in one directory |
 | `TimeStepAttributeExtension` | `string` | Defines the file extension of the attribute files inside the time step directories |
 | `TimeStepLayoutColumnName` | `[string, string, ...]` | Name of each column |
 | `TimeStepLayoutColumnType` | `[string, string, ...]` | Name of the column type (e.g. `float, int`) |
@@ -124,11 +126,11 @@ Parameters accepted by the NGPF Time Step Header.
 
 | Parameter | Format | Description |
 | :-- | :-- | :-- |
-| `TimeStep` | `int` | ID of the time step, usually the first time step has id 0 |
-| `Particles` | `int` | Number of particles |
-| `SimulationTime` | `float` | Corresponding time to the time step |
-| `SimulationBox` | `[(min) float, (min) float, (min) float, (max) float, ...]` | Simulation box of the time step |
-| `ParameterOffsets` | `[int, int, ...]` | Offset inside the data file to the corresponding time step for each attribute. |
+| `TimeStep` | `int64` | ID of the time step, usually the first time step has id 0 |
+| `Particles` | `int64` | Number of particles |
+| `SimulationTime` | `double` | Corresponding time to the time step |
+| `SimulationBox` | `[(min) double, (min) double, (min) double, (max) double, ...]` | Simulation box of the time step |
+| `ParameterOffsets` | `[int64, int64, ...]` | Offset inside the data file to the corresponding time step for each attribute. |
 | `Codecs` | `[struct, struct, ...]` | Defines a struct for each attribute. A struct contains the codec name and the codec properties. |
 
 
@@ -141,7 +143,7 @@ For example in the `x.dat` file, which is located in the `timestep0` directory, 
 The stored data is compressed by a codec specified by the user.
 Additionally, this codec can vary for each time step and each *attribute*.
 If more than one *attribute* is stored in a file (e.g. `x y z`), each *attribute* must be stored in separate blocks (i.e. interleaved storage is not allowed).
-For combined *attributes*, a specified codec applies to all *attributes*.
+For combined *attributes*, a specified codec applies to all *attributes*. All data that is written to the hard disk is *little endian* encoded. `RAW` data is left as is.
 
 directory for time step 0 to time step 9  
 
@@ -197,14 +199,14 @@ Parameters accepted by the NGPF Type File.
 
 | Parameter | Format | Flag | Description |
 | :-- | :-- | :-- | :-- |
-| `TypeID` | `int` | Required | Particle type ID |
+| `TypeID` | `int64` | Required | Particle type ID |
 | `Name` | `string` | Required | Name of the particle type (e.g. `H`) |
-| `NumberSites` | `int` | Supported | Number of sites of the e.g. molecule |
-| `Color` | `[int, int, int, int]` | Supported | Color of this type |
-| `Radius` | `float` | Supported | Radius of this type |
-| `Centers` | `[[x0, y0, z0], [...], ...]` | Supported, Multisite | Centers of the sites relative to the center of mass |
-| `Types` | `[int, int, ...]` | Supported, Multisite | Type IDs of the sites |
-| `Quaternion` | `[[qr,qi,qj,qk], [...], ...]` | Supported, Multisite | Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom. |
+| `NumberSites` | `int64` | Supported | Number of sites of the e.g. molecule |
+| `Color` | `[int64, int64, int64, int64]` | Supported | Color of this type |
+| `Radius` | `double` | Supported | Radius of this type |
+| `Centers` | `[[double, double, double], [...], ...]` | Supported, Multisite | Centers of the sites relative to the center of mass |
+| `Types` | `[int64, int64, ...]` | Supported, Multisite | Type IDs of the sites |
+| `Quaternion` | `[[double, double, double, double], [...], ...]` | Supported, Multisite | Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom. |
 
 ![](schematic_type.png)  
 Figure: Schematic with included type file.
@@ -218,17 +220,29 @@ The optional *Domain Decomposition Header* stores the *parameters* of the domain
 Because every rank writes its own data, each rank also encodes its own piece of the data.
 Subsequently, the decoder needs to know the *offsets to each piece* to be able to reconstruct the data as intended.
 For this purpose, an additional *offset data file* will be generated for each *attribute*.
-The offsets are a number of bytes and the offset data file will be dumped to the disk in a RAW encoded binary.
+The offsets are a number of bytes and the offset data file will be dumped to the disk in a RAW encoded binary. The `DDOccupation` and the `DDGeometry` are synchronized arrays, the indices of those arrays should match the domain ID.
 
 Parameters accepted by the NGPF Domain Decomposition Header.  
 
 | Parameter | Format | Description |
 | :-- | :-- | :-- |
-| `TimeStepID` | `int` | ID of the time step |
-| `Domains` | `int` | Number of total domains for this time step |
-| `DDOccupation` | `[int, int, ...]` | Number of particles in each domain. |
+| `TimeStepID` | `int64` | ID of the time step |
+| `Domains` | `int64` | Number of total domains for this time step |
+| `DDOccupation` | `[int64, int64, ...]` | Number of particles in each domain. |
 | `DDType` | `string` | Type of the domain decomposition, e.g. `box`, `BSP` (Binary Space Partitioning). |
-| `DDGeometry` | `[[float, ...], [float, ...], ...]` | Coordinates of the decomposed regions |
+| `DDGeometry` | `[[double, ...], [double, ...], ...]` | Coordinates of the decomposed regions |
+
+### BSP (Binary Space Partitioning)
+
+BSP is a hierarchical structure that contains a normal `[nx, ny, nz]` and a distance `d` to describe a plane (Hesse normal form). 
+
+	BSP0: [[nx, ny, nz], d]
+
+The children of `BSP0` are `BSP1` and `BSP2`. This follows the rule
+
+	children(n_i) = n_(2i+1), n_(2i+2)
+
+If the hierarchical structure stops at some point, the missing structure is filled with empty brackets `[]`.
 
 ![](schematic_dd.png)  
 Figure: Schematic with included domain decomposition.
@@ -249,8 +263,8 @@ Figure: Schematic with included domain decomposition.
 	TimeStepDirectoryIncrement: 10,
 	TimeStepAttributeExtension: "dat",
 	TimeStepLayoutColumnCount: 6,
-	TimeStepLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
-	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"],
+	TimeStepLayoutColumnName: ["type", "id", "x", "y", "z", "r", "g", "b"],
+	TimeStepLayoutColumnType: ["byte", "uint32", "float", "float", "float", "byte", "byte", "byte"],
 	TIDHeader: "tidheader.json",
 	TypeHeader: "typeheader.json",
 	DDHeader: "ddheader.json",
@@ -266,62 +280,58 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	SimulationTime: 0.0,
 	Particles: 1000,
 	SimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
-	ParameterOffsets: [0, 0, 0, 0, 0, 0]],
+	ParameterOffsets: [0, 0, 0, 0, 0, 0, 0, 0]],
 	Codecs:	[
+		{Name: "RAW"},
+		{Name: "DE"},
 		{Name: "ZFP",
 	 	 Epsilon: 0.1},
 		{Name: "ZFP",
 		 Epsilon: 0.1},
 		{Name: "ZFP",
 	 	 Epsilon: 0.1},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"}
+		{Name: "RAW"},
+		{Name: "RAW"},
+		{Name: "RAW"}
 		]
 	}{
 	TimeStepID: 1,
 	SimulationTime: 0.1,
 	Particles: 1000,
-	SimulationBox: [1.0, 1.0, 1.0],
-	ParameterOffset: [32000, 32000, 32000, 8000, 8000, 8000]],
+	SimulationBox: [-1.0, -1.0, -1.0, 1.0, 1.0, 1.0],
+	ParameterOffset: [8000, 32000, 32000, 32000, 32000, 8000, 8000, 8000]],
 	Codecs:	[
+		{Name: "RAW"},
+		{Name: "DE"},
 		{Name: "ZFP",
 	 	 Epsilon: 0.1},
 		{Name: "ZFP",
 		 Epsilon: 0.1},
 		{Name: "ZFP",
 	 	 Epsilon: 0.1},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"},
-		{Name: "RAW",
-	 	 Encoding: "littleEndian"}
+		{Name: "RAW"},
+		{Name: "RAW"},
+		{Name: "RAW"}
 		]
 	}
 
 ### Time Independent Header (optional)
 
 	{
-	TIDDirectory: ".",
+	TIDDirectory: "ti_data",
 	TIDAttributes: ["links_fw", "links_bw"],
 	TIDTypes: ["uint_32", "uint_32"],
 	TIDCodecs: [{Name: "DE"}, {Name: "DE"}]
 	}
 
 
-
-
 ### Type File (optional)
 
     {
     CustomParameters: [{Name: "rho",
-                        Type: "float"},
+                        Type: "double"},
 	                   {Name: "charge",
-	                    Type: "int"}]
+	                    Type: "int64"}]
 		{
 		TypeID: 0,
 		Name: "H",
@@ -353,7 +363,7 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 		NumberSites: 5,
 		Types: [0, 0, 0, 2, 3],
 		Centers: [[x1, y1, z1], [x2, y2, z2], [x3, y3, z3], [x4, y4, z4], [x5, y5, z5]],
-		Quaternions: [[], [], [], [], [qr, qi, qj ,qk]]
+		Quaternion: [[], [], [], [], [qr, qi, qj ,qk]]
 		}{
     	TypeID: 5,
     	Name: "Hugo",
