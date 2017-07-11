@@ -29,10 +29,8 @@ The *Time Step Header* contains the *parameters* of each individual time step (e
 An optional *Type File* can be used to assign chemical elements to particles, set a per-type color or radius, or describe rigid molecules (no inner DOF) via multiple sites/centers per particle (which should then be interpreted as instances of the rigid molecules).
 Additionally, the Type File can contain *parameters* about the element/molecule, such as atomic mass, charge, etc.
 
-<center>
-    <img src="schematic.png" ></img><br>
-    Figure: Schematic of the file format header management.
-</center>
+![](schematic.png)  
+Figure: Schematic of the file format header management.
 
 
 ## <a name="general-conventions"></a>General Conventions
@@ -59,265 +57,77 @@ Integer `int` and float `float` values also support the scientific number format
 ## <a name="naming-conventions"></a>Naming Conventions
 [Go to Top](#top)  
 The file format supports several pre-defined *attribute* names for convenience:
-<table style="width:97%;">
-<colgroup>
-<col width="25%" />
-<col width="75%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Attribute</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>x, y, z</code></td>
-<td align="left">Position</td>
-</tr>
-<tr>
-<td align="left"><code>vx, vy, vz</code></td>
-<td align="left">Velocity</td>
-</tr>
-<tr>
-<td align="left"><code>r, g, b</code></td>
-<td align="left">Color</td>
-</tr>
-<tr>
-<td align="left"><code>rad</code></td>
-<td align="left">Radius</td>
-</tr>
-<tr>
-<td align="left"><code>qr, qi, qj, qk</code></td>
-<td align="left">Quaternion</td>
-</tr>
-</tbody>
-</table>
+
+| Attribute | Description |
+| :-- | :-- |
+| `x, y, z` | Position |
+| `vx, vy, vz` | Velocity |
+| `r, g, b` | Color |
+| `rad` | Radius |
+| `qr, qi, qj, qk` | Quaternion |
 
 Attribute bricking (e.g. `"x y z"`) is only allowed if the involved attributes are of the same type.
 For the type `byte` only a composition of four `byte` attributes is allowed (often used for `"r g b a"`).
 
 ## <a name="data-types"></a>Supported Data Types
 [Go to Top](#top)  
-<table style="width:97%;">
-<colgroup>
-<col width="25%" />
-<col width="75%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>(u)int_64</code></td>
-<td align="left">64-bit (unsigned) integer</td>
-</tr>
-<tr>
-<td align="left"><code>(u)int_32</code></td>
-<td align="left">32-bit (unsigned) integer</td>
-</tr>
-<tr>
-<td align="left"><code>byte</code></td>
-<td align="left">8-bit unsigned integer (<code>uint8_t</code>)</td>
-</tr>
-<tr>
-<td align="left"><code>double</code></td>
-<td align="left">IEEE-754 standard 64-bit floating point value</td>
-</tr>
-<tr>
-<td align="left"><code>float</code></td>
-<td align="left">IEEE-754 standard 32-bit floating point value</td>
-</tr>
-<tr>
-<td align="left"><code>string</code></td>
-<td align="left">ASCII string value</td>
-</tr>
-<tr>
-<td align="left"><code>unicode</code></td>
-<td align="left">UTF-8 string value</td>
-</tr>
-</tbody>
-</table>
+
+| Type | Description |
+| :-- | :-- |
+| `(u)int_64` | 64-bit (unsigned) integer |
+| `(u)int_32` | 32-bit (unsigned) integer |
+| `byte` | 8-bit unsigned integer (`uint8_t`) |
+| `double` | IEEE-754 standard 64-bit floating point value |
+| `float` | IEEE-754 standard 32-bit floating point value |
+| `string` | ASCII string value |
+| `unicode` | UTF-8 string value |
 
 ## <a name="binary-codecs"></a>Supported Binary Codecs
 [Go to Top](#top)  
-<table style="width:97%;">
-<colgroup>
-<col width="25%" />
-<col width="75%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Codec</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left">Raw</td>
-<td align="left">Raw storage of data</td>
-</tr>
-<tr>
-<td align="left">ZFP</td>
-<td align="left">Floating-point compression scheme <a href="https://github.com/Unidata/compression/tree/master/zfp">ZFP</a></td>
-</tr>
-<tr>
-<td align="left">RLE</td>
-<td align="left">Run-length encoding</td>
-</tr>
-<tr>
-<td align="left">RLE(DE)</td>
-<td align="left">Run-length encoding of delta encoded data</td>
-</tr>
-</tbody>
-</table>
+
+| Codec | Description |
+| :-- | :-- |
+| Raw | Raw storage of data |
+| ZFP | Floating-point compression scheme [ZFP] |
+| RLE | Run-length encoding |
+| RLE(DE) | Run-length encoding of delta encoded data |
 
 ## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
-<table style="width:97%;">
-<caption> Parameters accepted by the NGPF Global Header.</caption>
-<colgroup>
-<col width="24%" />
-<col width="23%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Parameter</th>
-<th align="left">Format</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>Identifier</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Identifies the file as NGPF global header (fixed value<code>"NGPF"</code>)</td>
-</tr>
-<tr>
-<td align="left"><code>Version</code></td>
-<td align="left"><code>"int.int.int.hash"</code></td>
-<td align="left">NGPF version number</td>
-</tr>
-<tr>
-<td align="left"><code>TimeSteps</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Number of time steps</td>
-</tr>
-<tr>
-<td align="left"><code>SimulationTimeUnit</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Unit of the <code>SimulationTime</code>, e.g. <code>nanoseconds</code>, <code>custom</code></td>
-</tr>
-<tr>
-<td align="left"><code>MaxSimulationBox</code></td>
-<td align="left"><code>[(min) float, (min) float, (min) float, (max) float, ...]</code></td>
-<td align="left">Union of simulation boxes over all time steps of the data set</td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepHeader</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Relative path to the time step header (see <a href="#time-step-header">Time Step Header</a>) </td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepDirectoryPrefix</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Sets the naming scheme for the time step directories (as C format string)</td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepDirectoryIncrement</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Defines how many time steps are stored in one directory</td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepAttributeExtension</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Defines the file extension of the attribute files inside the time step directories</td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepLayoutColumnName</code></td>
-<td align="left"><code>[string, string, ...]</code></td>
-<td align="left">Name of each column</td>
-</tr>
-<tr>
-<td align="left"><code>TimeStepLayoutColumnType</code></td>
-<td align="left"><code>[string, string, ...]</code></td>
-<td align="left">Name of the column type (e.g. <code>float, int</code>)</td>
-</tr>
-<tr>
-<td align="left"><code>TypeHeader</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">(O)Relative path to the type header (see <a href="#type-header">Type File</a>)</td>
-</tr>
-<tr>
-<td align="left"><code>DDHeader</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">(O)Relative path to the domain decomposition header (see <a href="#domain-decomposition-header">Domain Decomposition Header</a>) </td>
-</tr>
-<tr>
-<td align="left"><code>DDOffsetExtension</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">(O)Extension of the offset attribute file</td>
-</tr>
-</tbody>
-</table>
+
+Parameters accepted by the NGPF Global Header.  
+
+| Parameter | Format | Description |
+| :-- | :-- | :-- |
+| `Identifier` | `string` | Identifies the file as NGPF global header (fixed value`"NGPF"`) |
+| `Version` | `"int.int.int.hash"` | NGPF version number |
+| `TimeSteps` | `int` | Number of time steps |
+| `SimulationTimeUnit` | `string` | Unit of the `SimulationTime`, e.g. `nanoseconds`, `custom` |
+| `MaxSimulationBox` | `[(min) float, (min) float, (min) float, (max) float, ...]` | Union of simulation boxes over all time steps of the data set |
+| `TimeStepHeader` | `string` | Relative path to the time step header (see [Time Step Header](#time-step-header)) |
+| `TimeStepDirectoryPrefix` | `string` | Sets the naming scheme for the time step directories (as C format string) |
+| `TimeStepDirectoryIncrement` | `int` | Defines how many time steps are stored in one directory |
+| `TimeStepAttributeExtension` | `string` | Defines the file extension of the attribute files inside the time step directories |
+| `TimeStepLayoutColumnName` | `[string, string, ...]` | Name of each column |
+| `TimeStepLayoutColumnType` | `[string, string, ...]` | Name of the column type (e.g. `float, int`) |
+| `TypeHeader` | `string` | (O)Relative path to the type header (see [Type File](#type-header)) |
+| `DDHeader` | `string` | (O)Relative path to the domain decomposition header (see [Domain Decomposition Header](#domain-decomposition-header)) |
+| `DDOffsetExtension` | `string` | (O)Extension of the offset attribute file |
 
 
 ## <a name="time-step-header"></a>Time Step Header
 [Go to Top](#top)  
 
+Parameters accepted by the NGPF Time Step Header.  
 
-<table style="width:97%;">
-<caption> Parameters accepted by the NGPF Time Step Header.</caption>
-<colgroup>
-<col width="24%" />
-<col width="23%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr>
-<th align="left">Parameter</th>
-<th align="left">Format</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>TimeStep</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">ID of the time step, usually the first time step has id 0</td>
-</tr>
-<tr>
-<td><code>Particles</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Number of particles</td>
-</tr>
-<tr>
-<td align="left"><code>SimulationTime</code></td>
-<td align="left"><code>float</code></td>
-<td align="left">Corresponding time to the time step</td>
-</tr>
-<tr>
-<td align="left"><code>SimulationBox</code></td>
-<td align="left"><code>[(min) float, (min) float, (min) float, (max) float, ...]</code></td>
-<td align="left">Simulation box of the time step</td>
-</tr>
-</tr>
-<tr>
-<td align="left"><code>ParameterOffsets</code></td>
-<td align="left"><code>[int, int, ...]</code></td>
-<td align="left">Offset inside the data file to the corresponding time step for each attribute.</td>
-</tr>
-<tr>
-<td align="left"><code>Codecs</code></td>
-<td align="left"><code>[struct, struct, ...]</code></td>
-<td align="left">Defines a struct for each attribute. A struct contains the codec name and the codec properties.</td>
-</tr>
-</tbody>
-</table>
+| Parameter | Format | Description |
+| :-- | :-- | :-- |
+| `TimeStep` | `int` | ID of the time step, usually the first time step has id 0 |
+| `Particles` | `int` | Number of particles |
+| `SimulationTime` | `float` | Corresponding time to the time step |
+| `SimulationBox` | `[(min) float, (min) float, (min) float, (max) float, ...]` | Simulation box of the time step |
+| `ParameterOffsets` | `[int, int, ...]` | Offset inside the data file to the corresponding time step for each attribute. |
+| `Codecs` | `[struct, struct, ...]` | Defines a struct for each attribute. A struct contains the codec name and the codec properties. |
 
 
 ## <a name="data"></a>Data
@@ -331,113 +141,23 @@ Additionally, this codec can vary for each time step and each *attribute*.
 If more than one *attribute* is stored in a file (e.g. `x y z`), each *attribute* must be stored in separate blocks (i.e. interleaved storage is not allowed).
 For combined *attributes*, a specified code applies to all *attributes*.
 
-<table style="width:96%;">
-<caption><b>directory for time step 0 to time step 9</b><caption>
-<colgroup>
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-</colgroup>
-<tbody>
-<tr>
-<th align="left">x.dat</th>
-<th align="left">y.dat</th>
-<th align="left">z.dat</th>
-<th align="left">r.dat</th>
-<th align="left">g.dat</th>
-<th align="left">b.dat</th>
-</tr>
-<tr>
-<td align="center">ZFP0(x_timestep0)</td>
-<td align="center">ZFP0(y_timestep0)</td>
-<td align="center">ZFP0(z_timestep0)</td>
-<td align="center">RAW0(r_timestep0)</td>
-<td align="center">RAW0(g_timestep0)</td>
-<td align="center">RAW0(b_timestep0)</td>
-</tr>
-<tr>
-<td align="center">ZFP1(x_timestep1)</td>
-<td align="center">ZFP1(y_timestep1)</td>
-<td align="center">ZFP1(z_timestep1)</td>
-<td align="center">RAW1(r_timestep1)</td>
-<td align="center">RAW1(g_timestep1)</td>
-<td align="center">RAW1(b_timestep1)</td>
-</tr>
-<tr>
-<td align="center">ZFP2(x_timestep2)</td>
-<td align="center">ZFP2(y_timestep2)</td>
-<td align="center">ZFP2(z_timestep2)</td>
-<td align="center">RAW2(r_timestep2)</td>
-<td align="center">RAW2(g_timestep2)</td>
-<td align="center">RAW2(b_timestep2)</td>
-</tr>
-<tr>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-</tr>
-</tbody>
-</table>
+directory for time step 0 to time step 9  
 
-<table style="width:96%;">
-<caption><b>directory for time step 10 to time step 19</b><caption>
-<colgroup>
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-<col width="16%" />
-</colgroup>
-<tbody>
-<tr>
-<th align="left">x.dat</th>
-<th align="left">y.dat</th>
-<th align="left">z.dat</th>
-<th align="left">r.dat</th>
-<th align="left">g.dat</th>
-<th align="left">b.dat</th>
-</tr>
-<tr>
-<td align="center">ZFP10(x_timestep10)</td>
-<td align="center">ZFP10(y_timestep10)</td>
-<td align="center">ZFP10(z_timestep10)</td>
-<td align="center">RAW10(r_timestep10)</td>
-<td align="center">RAW10(g_timestep10)</td>
-<td align="center">RAW10(b_timestep10)</td>
-</tr>
-<tr>
-<td align="center">ZFP11(x_timestep11)</td>
-<td align="center">ZFP11(y_timestep11)</td>
-<td align="center">ZFP11(z_timestep11)</td>
-<td align="center">RAW11(r_timestep11)</td>
-<td align="center">RAW11(g_timestep11)</td>
-<td align="center">RAW11(b_timestep11)</td>
-</tr>
-<tr>
-<td align="center">ZFP12(x_timestep12)</td>
-<td align="center">ZFP12(y_timestep12)</td>
-<td align="center">ZFP12(z_timestep12)</td>
-<td align="center">RAW12(r_timestep12)</td>
-<td align="center">RAW12(g_timestep12)</td>
-<td align="center">RAW12(b_timestep12)</td>
-</tr>
-<tr>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-<td align="center">...</td>
-</tr>
-</tbody>
-</table>
+| x.dat | y.dat | z.dat | r.dat | g.dat | b.dat |
+|:--|:--|:--|:--|:--|:--|
+| ZFP0(x_timestep0) | ZFP0(y_timestep0) | ZFP0(z_timestep0) | RAW0(r_timestep0) | RAW0(g_timestep0) | RAW0(b_timestep0) |
+| ZFP1(x_timestep1) | ZFP1(y_timestep1) | ZFP1(z_timestep1) | RAW1(r_timestep1) | RAW1(g_timestep1) | RAW1(b_timestep1) |
+| ZFP2(x_timestep2) | ZFP2(y_timestep2) | ZFP2(z_timestep2) | RAW2(r_timestep2) | RAW2(g_timestep2) | RAW2(b_timestep2) |
+| ... | ... | ... | ... | ... | ... |
+
+directory for time step 10 to time step 19  
+
+| x.dat | y.dat | z.dat | r.dat | g.dat | b.dat |
+|:--|:--|:--|:--|:--|:--|
+| ZFP10(x_timestep10) | ZFP10(y_timestep10) | ZFP10(z_timestep10) | RAW10(r_timestep10) | RAW10(g_timestep10) | RAW10(b_timestep10) |
+| ZFP11(x_timestep11) | ZFP11(y_timestep11) | ZFP11(z_timestep11) | RAW11(r_timestep11) | RAW11(g_timestep11) | RAW11(b_timestep11) |
+| ZFP12(x_timestep12) | ZFP12(y_timestep12) | ZFP12(z_timestep12) | RAW12(r_timestep12) | RAW12(g_timestep12) | RAW12(b_timestep12) |
+| ... | ... | ... | ... | ... | ... |
 
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
@@ -449,106 +169,28 @@ A user can also define *parameters* of any shape to a `TypeID` using the `Custom
 The `CustomParameter` is defined at the beginning of the type file and takes an array of structs.
 In a single struct the `Name` and the `Type` of a custom parameter should be defined.
 
-<table style="width:97%;">
-<caption><code>CustomParameter</code></caption>
-<colgroup>
-<col width="24%" />
-<col width="23%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr>
-<th align="left">Parameter</th>
-<th align="left">Format</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>Name</code></td>
-<td align="left"><code>unicode</code></td>
-<td align="left">Name of the custom parameter</td>
-</tr>
-<tr>
-<td><code>Type</code></td>
-<td align="left"><code>string or [string, ...]</code></td>
-<td align="left">Defines the type and the Format of the  custom parameter</td>
-</tr>
-</tbody>
-</table>
-<br> 
-<table style="width:97%;">
-<caption> Parameters accepted by the NGPF Type File.</caption>
-<colgroup>
-<col width="24%" />
-<col width="18%" />
-<col width="15%" />
-<col width="40%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Parameter</th>
-<th align="left">Format</th>
-<th align="left">Flag</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>TypeID</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Required</td>
-<td align="left">Particle type ID</td>
-</tr>
-<tr>
-<td align="left"><code>Name</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Required</td>
-<td align="left">Name of the particle type (e.g. <code>H</code>)</td>
-</tr>
-<tr>
-<td align="left"><code>NumberSites</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Supported</td>
-<td align="left">Number of sites of the e.g. molecule</td>
-</tr>
-<tr>
-<td align="left"><code>Color</code></td>
-<td align="left"><code>[int, int, int, int]</code></td>
-<td align="left">Supported</td>
-<td align="left">Color of this type</td>
-</tr>
-<tr>
-<td align="left"><code>Radius</code></td>
-<td align="left"><code>float</code></td>
-<td align="left">Supported</td>
-<td align="left">Radius of this type</td>
-</tr>
-<tr>
-<td align="left"><code>Centers</code></td>
-<td align="left"><code>[[x0, y0, z0], [...], ...]</code></td>
-<td align="left">Supported, Multisite</td>
-<td align="left">Centers of the sites relative to the center of mass</td>
-</tr>
-<tr>
-<td align="left"><code>Types</code></td>
-<td align="left"><code>[int, int, ...]</code></td>
-<td align="left">Supported, Multisite</td>
-<td align="left">Type IDs of the sites</td>
-</tr>
-<tr>
-<td align="left"><code>Quaternions</code></td>
-<td align="left"><code>[[qr,qi,qj,qk], [...], ...]</code></td>
-<td align="left">Supported, Multisite</td>
-<td align="left">Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom.</td>
-</tr>
-</tbody>
-</table>
-<br>
-<center>
-    <img src="schematic_type.png" ></img><br>
-    Figure: Schematic with included type file.
-</center>
+Aguments the `CustomParameter` struct takes.  
+
+| Parameter | Format | Description |
+| :-- | :-- | :-- |
+| `Name` | `unicode` | Name of the custom parameter |
+| `Type` | `string or [string, ...]` | Defines the type and the Format of the custom parameter |
+
+Parameters accepted by the NGPF Type File.  
+
+| Parameter | Format | Flag | Description |
+| :-- | :-- | :-- | :-- |
+| `TypeID` | `int` | Required | Particle type ID |
+| `Name` | `string` | Required | Name of the particle type (e.g. `H`) |
+| `NumberSites` | `int` | Supported | Number of sites of the e.g. molecule |
+| `Color` | `[int, int, int, int]` | Supported | Color of this type |
+| `Radius` | `float` | Supported | Radius of this type |
+| `Centers` | `[[x0, y0, z0], [...], ...]` | Supported, Multisite | Centers of the sites relative to the center of mass |
+| `Types` | `[int, int, ...]` | Supported, Multisite | Type IDs of the sites |
+| `Quaternions` | `[[qr,qi,qj,qk], [...], ...]` | Supported, Multisite | Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom. |
+
+![](schematic_type.png)  
+Figure: Schematic with included type file.
 
 ## <a name="domain-decomposition"></a>Domain Decomposition
 [Go to Top](#top)  
@@ -561,58 +203,24 @@ Subsequently, the decoder needs to know the *offsets to each piece* to be able t
 For this purpose, an additional *offset data file* will be generated for each *attribute*.
 The offsets are a number of bytes and the offset data file will be dumped to the disk in a RAW encoded binary.
 
-<table style="width:97%;">
-<caption> Parameters accepted by the NGPF Domain Decomposition Header.</caption>
-<colgroup>
-<col width="24%" />
-<col width="23%" />
-<col width="50%" />
-</colgroup>
-<thead>
-<tr>
-<th align="left">Parameter</th>
-<th align="left">Format</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left"><code>TimeStepID</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">ID of the time step</td>
-</tr>
-<tr>
-<td><code>Domains</code></td>
-<td align="left"><code>int</code></td>
-<td align="left">Number of total domains for this time step</td>
-</tr>
-<tr>
-<td><code>DDOccupation</code></td>
-<td align="left"><code>[int, int, ...]</code></td>
-<td align="left">Number of particles in each domain.</td>
-</tr>
-<tr>
-<td><code>DDType</code></td>
-<td align="left"><code>string</code></td>
-<td align="left">Type of the domain decomposition, e.g. <code>box</code>, <code>BSP</code> (Binary Space Partitioning).</td>
-</tr>
-<tr>
-<td align="left"><code>DDGeometry</code></td>
-<td align="left"><code>[[float, ...], [float, ...], ...]</code></td>
-<td align="left">Coordinates of the decomposed regions</td>
-</tr>
-</tbody>
-</table>
-<br>
-<center>
-    <img src="schematic_dd.png" ></img><br>
-    Figure: Schematic with included domain decomposition.
-</center>
+Parameters accepted by the NGPF Domain Decomposition Header.  
+
+| Parameter | Format | Description |
+| :-- | :-- | :-- |
+| `TimeStepID` | `int` | ID of the time step |
+| `Domains` | `int` | Number of total domains for this time step |
+| `DDOccupation` | `[int, int, ...]` | Number of particles in each domain. |
+| `DDType` | `string` | Type of the domain decomposition, e.g. `box`, `BSP` (Binary Space Partitioning). |
+| `DDGeometry` | `[[float, ...], [float, ...], ...]` | Coordinates of the decomposed regions |
+
+![](schematic_dd.png)  
+Figure: Schematic with included domain decomposition.
 
 ## <a name="examples"></a>Examples
 [Go to Top](#top)  
 
 ### Global Header
+
 	{
 	Identifier: "NGPF",
 	Version: "1.0.0.3fa5735-dirty",
@@ -634,6 +242,7 @@ The offsets are a number of bytes and the offset data file will be dumped to the
 The *parameter* `TimeStepDirectoryPrefix: "timestep%0.3i"` fixes the time step directory affix to a three digit integer.
 This results in the directory names `timestep000`, `timestep010`, `timestep020`, ...
 ### Time Step Header
+
 	{
 	TimeStepID: 0,
 	SimulationTime: 0.0,
@@ -677,6 +286,7 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	}
 
 ### Type File (optional)
+
     {
     CustomParameters: [{Name: "rho",
                         Type: "float"},
@@ -742,3 +352,4 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 
 [ZFP]: (https://github.com/Unidata/compression/tree/master/zfp)
 [JSON]: (http://www.json.org)
+
