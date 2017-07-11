@@ -1,7 +1,7 @@
 # <a name="top"></a>File Format Specification NGPF
 Version: 0.1-beta  
 VISUS, University of Stuttgart  
-Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
+NGPF Team
 
 ## Sections
 [Preface](#preface)  
