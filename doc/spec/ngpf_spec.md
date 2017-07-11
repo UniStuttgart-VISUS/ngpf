@@ -91,7 +91,7 @@ For the type `byte` only a composition of four `byte` attributes is allowed (oft
 | RAW | Raw storage of data |
 | ZFP | Floating-point compression scheme [ZFP] |
 | RLE | Run-length encoding |
-| RLE(DE) | Run-length encoding of delta encoded data |
+| DE | Run-length encoding of *delta encoded* data |
 
 ## <a name="global-header"></a>Global Header
 [Go to Top](#top)  
@@ -308,12 +308,7 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	TIDDirectory: ".",
 	TIDAttributes: ["links_fw", "links_bw"],
 	TIDTypes: ["uint_32", "uint_32"],
-	TIDCodecs: [
-		   {Name: "RAW",
-		    Encoding: "RLE(DE)"},
-		   {Name: "RAW",
-		    Encoding: "RLE(DE)"}
-		   ]
+	TIDCodecs: [{Name: "DE"}, {Name: "DE"}]
 	}
 
 
