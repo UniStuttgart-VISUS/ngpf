@@ -12,6 +12,7 @@ Oliver Fernandes, Patrick Gralka, Tobias Rau, Guido Reina, Michael Krone
 [Global Header](#global-header)  
 [Time Step Header](#time-step-header)  
 [Data](#data)  
+[Time Independent Data](#time-independent-data)  
 [Type File](#type-file)  
 [Domain Decomposition](#domain-decomposition)  
 [Examples](#examples)
@@ -87,7 +88,7 @@ For the type `byte` only a composition of four `byte` attributes is allowed (oft
 
 | Codec | Description |
 | :-- | :-- |
-| Raw | Raw storage of data |
+| RAW | Raw storage of data |
 | ZFP | Floating-point compression scheme [ZFP] |
 | RLE | Run-length encoding |
 | RLE(DE) | Run-length encoding of delta encoded data |
@@ -110,6 +111,7 @@ Parameters accepted by the NGPF Global Header.
 | `TimeStepAttributeExtension` | `string` | Defines the file extension of the attribute files inside the time step directories |
 | `TimeStepLayoutColumnName` | `[string, string, ...]` | Name of each column |
 | `TimeStepLayoutColumnType` | `[string, string, ...]` | Name of the column type (e.g. `float, int`) |
+| `TIDHeader` | `string` | (O)Relative path to the time independent data header (see [Time Independent Data](#time-independent-data)) |
 | `TypeHeader` | `string` | (O)Relative path to the type header (see [Type File](#type-header)) |
 | `DDHeader` | `string` | (O)Relative path to the domain decomposition header (see [Domain Decomposition Header](#domain-decomposition-header)) |
 | `DDOffsetExtension` | `string` | (O)Extension of the offset attribute file |
@@ -159,6 +161,20 @@ directory for time step 10 to time step 19
 | ZFP12(x_timestep12) | ZFP12(y_timestep12) | ZFP12(z_timestep12) | RAW12(r_timestep12) | RAW12(g_timestep12) | RAW12(b_timestep12) |
 | ... | ... | ... | ... | ... | ... |
 
+## <a name="time-independent-data"></a>Time Independent Data (optional)
+
+An attribute that is marked as *time independent data* is constant for the whole simulation, e.g. links between particles. The *TID header* defines the following parameters.
+
+| Parameter | Format | Description |
+|:--|:--|:--|
+| TIDDirectory | `string` | Directory for the storage of TID data |
+| TIDAttributes | `[string, string, ...]` | Names of the TID attributes |
+| TIDTypes | `[string, string, ...]` | Types of the TID attributes |
+| TIDCodecs | `[struct, struct, ...]` | Codecs and properties of the codecs |
+
+![](schematic_tid.png)  
+Figure: Schematic with included time independent data.
+
 ## <a name="type-file"></a>Type File (optional)
 [Go to Top](#top)  
 Particles can be identified by a type ID.
@@ -169,7 +185,7 @@ A user can also define *parameters* of any shape to a `TypeID` using the `Custom
 The `CustomParameter` is defined at the beginning of the type file and takes an array of structs.
 In a single struct the `Name` and the `Type` of a custom parameter should be defined.
 
-Aguments the `CustomParameter` struct takes.  
+Arguments the `CustomParameter` struct takes.  
 
 | Parameter | Format | Description |
 | :-- | :-- | :-- |
@@ -187,7 +203,7 @@ Parameters accepted by the NGPF Type File.
 | `Radius` | `float` | Supported | Radius of this type |
 | `Centers` | `[[x0, y0, z0], [...], ...]` | Supported, Multisite | Centers of the sites relative to the center of mass |
 | `Types` | `[int, int, ...]` | Supported, Multisite | Type IDs of the sites |
-| `Quaternions` | `[[qr,qi,qj,qk], [...], ...]` | Supported, Multisite | Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom. |
+| `Quaternion` | `[[qr,qi,qj,qk], [...], ...]` | Supported, Multisite | Quaternions of connected sites. Can also be empty if a site is, e.g., a single atom. |
 
 ![](schematic_type.png)  
 Figure: Schematic with included type file.
@@ -234,6 +250,7 @@ Figure: Schematic with included domain decomposition.
 	TimeStepLayoutColumnCount: 6,
 	TimeStepLayoutColumnName: ["x", "y", "z", "r", "g", "b"],
 	TimeStepLayoutColumnType: ["float", "float", "float", "byte", "byte", "byte"],
+	TIDHeader: "tidheader.json",
 	TypeHeader: "typeheader.json",
 	DDHeader: "ddheader.json",
 	DDOffsetExtension: "offset"
@@ -284,6 +301,23 @@ This results in the directory names `timestep000`, `timestep010`, `timestep020`,
 	 	 Encoding: "littleEndian"}
 		]
 	}
+
+### Time Independent Header (optional)
+
+	{
+	TIDDirectory: ".",
+	TIDAttributes: ["links_fw", "links_bw"],
+	TIDTypes: ["uint_32", "uint_32"],
+	TIDCodecs: [
+		   {Name: "RAW",
+		    Encoding: "RLE(DE)"},
+		   {Name: "RAW",
+		    Encoding: "RLE(DE)"}
+		   ]
+	}
+
+
+
 
 ### Type File (optional)
 
